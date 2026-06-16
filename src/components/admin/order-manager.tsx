@@ -35,12 +35,6 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
     toast.success("Order updated");
   }
 
-  async function resend(id: string) {
-    const response = await fetch(`/api/admin/orders/${id}/resend`, { method: "POST" });
-    if (!response.ok) return toast.error("Unable to resend");
-    toast.success("Email resent");
-  }
-
   const filteredOrders = orders.filter((order) => {
     const query = search.toLowerCase();
     const matchesSearch = !query || order.orderNumber.toLowerCase().includes(query) || order.customer.name.toLowerCase().includes(query) || order.customer.phone.toLowerCase().includes(query);
@@ -92,25 +86,20 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
               <span>Total</span>
               <span className="font-semibold">{formatPKR(order.total)}</span>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="rounded-2xl border border-black/10 px-4 py-3 text-sm">
-                {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="rounded-2xl border border-black/10 px-4 py-3 text-sm">
+                  {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
                 <button onClick={() => setSelected(order)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
                   View
                 </button>
-                <button onClick={() => resend(order.id)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
-                  Resend
-                </button>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       <div className="hidden overflow-hidden rounded-3xl border border-black/10 lg:block">
@@ -145,17 +134,14 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
                     </select>
                   </td>
                   <td className="px-4 py-4">{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td className="px-4 py-4">
-                    <div className="flex justify-end gap-2">
-                      <button onClick={() => setSelected(order)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
-                        View
-                      </button>
-                      <button onClick={() => resend(order.id)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
-                        Resend
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <td className="px-4 py-4">
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setSelected(order)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
+                      View
+                    </button>
+                  </div>
+                </td>
+              </tr>
               ))}
             </tbody>
           </table>
@@ -179,7 +165,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
         </div>
       </div>
 
-      <OrderDetailModal order={selected} onClose={() => setSelected(null)} onUpdateStatus={updateStatus} onResend={resend} />
+      <OrderDetailModal order={selected} onClose={() => setSelected(null)} onUpdateStatus={updateStatus} />
     </div>
   );
 }

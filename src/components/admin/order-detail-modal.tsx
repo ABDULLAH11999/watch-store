@@ -17,13 +17,11 @@ type Order = {
 export function OrderDetailModal({
   order,
   onClose,
-  onUpdateStatus,
-  onResend
+  onUpdateStatus
 }: {
   order: Order | null;
   onClose: () => void;
   onUpdateStatus: (id: string, status: string) => void;
-  onResend: (id: string) => void;
 }) {
   if (!order) return null;
   const steps = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"];
@@ -89,9 +87,6 @@ export function OrderDetailModal({
               <option key={step} value={step}>{step}</option>
             ))}
           </select>
-          <button onClick={() => onResend(order.id)} className="rounded-full border px-5 py-3 text-sm font-semibold">
-            Resend Confirmation
-          </button>
         </div>
       </div>
     </div>
