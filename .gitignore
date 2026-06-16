@@ -6,4 +6,4 @@ coverage
 .env
 .env.local
 /.prisma
-/public/watches
+# /public/watches
