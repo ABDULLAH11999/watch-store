@@ -43,6 +43,7 @@ export async function GET() {
     { url: `${siteUrl}/about`, lastmod: new Date().toISOString() },
     { url: `${siteUrl}/contact`, lastmod: new Date().toISOString() },
     { url: `${siteUrl}/privacy-policy`, lastmod: new Date().toISOString() },
+    { url: `${siteUrl}/return-policy`, lastmod: new Date().toISOString() },
     { url: `${siteUrl}/terms-conditions`, lastmod: new Date().toISOString() },
     ...products.map((product) => ({
       url: `${siteUrl}/product/${product.slug}`,

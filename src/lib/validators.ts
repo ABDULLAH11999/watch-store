@@ -7,8 +7,8 @@ export const productSchema = z.object({
   price: z.coerce.number().min(0),
   salePrice: z.coerce.number().min(0).optional().nullable(),
   saleEndsAt: z.string().datetime().optional().nullable(),
-  images: z.array(z.string().url()).min(1),
-  videoUrl: z.string().url().optional().nullable(),
+  images: z.array(z.string().min(1)).min(1),
+  videoUrl: z.string().min(1).optional().nullable(),
   stock: z.coerce.number().int().min(0),
   status: z.enum(["DRAFT", "PUBLISHED", "OUT_OF_STOCK"])
 });
@@ -23,7 +23,7 @@ export const customerSchema = z.object({
 
 export const testimonialSchema = z.object({
   customerName: z.string().min(2),
-  customerImage: z.string().url(),
+  customerImage: z.string().min(1),
   rating: z.coerce.number().int().min(1).max(5),
   reviewText: z.string().min(10),
   status: z.enum(["DRAFT", "PUBLISHED"]),
@@ -42,7 +42,7 @@ export const checkoutSchema = z.object({
         name: z.string(),
         brand: z.string(),
         slug: z.string(),
-        image: z.string().url(),
+        image: z.string().min(1),
         quantity: z.coerce.number().int().min(1),
         price: z.coerce.number().min(0),
         salePrice: z.coerce.number().min(0).optional().nullable()

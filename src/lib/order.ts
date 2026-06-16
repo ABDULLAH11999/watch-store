@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { toSlug } from "@/lib/utils";
-import { sendMail, orderConfirmationEmail } from "@/lib/email";
+import { adminOrderAlertEmail, orderConfirmationEmail, resolveMailConfig, sendMail } from "@/lib/email";
 import type { Prisma } from "@prisma/client";
 
 export type CheckoutItem = {
@@ -61,39 +61,77 @@ export async function createCheckoutOrder(input: {
     }
   });
 
-  if (input.customer.email) {
-    const settings = await prisma.siteSettings.findMany({
-      where: { key: { in: ["businessInfo", "emailSettings"] } }
-    });
-    const business = settings.find((setting) => setting.key === "businessInfo");
-    const businessInfo = business ? JSON.parse(business.value) : {};
-    const emailTemplate = orderConfirmationEmail({
-      orderNumber,
-      customerName: customer.name,
-      phone: customer.phone,
-      address: customer.address,
-      city: customer.city,
-      items: input.items.map((item) => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price
-      })),
-      subtotal,
-      total,
-      business: {
-        phone: businessInfo.contactPhone || process.env.SMTP_FROM_EMAIL || "",
-        email: businessInfo.contactEmail || process.env.SMTP_FROM_EMAIL || "",
-        address: businessInfo.shopAddress || customer.address
-      }
-    });
+  const settings = await prisma.siteSettings.findMany({
+    where: { key: { in: ["businessInfo"] } }
+  });
+  const business = settings.find((setting) => setting.key === "businessInfo");
+  const businessInfo = business ? JSON.parse(business.value) : {};
+  const businessContacts = {
+    phone: businessInfo.contactPhone || process.env.SMTP_FROM_EMAIL || "",
+    email: businessInfo.contactEmail || process.env.SMTP_FROM_EMAIL || "",
+    address: businessInfo.shopAddress || customer.address
+  };
 
-    await sendMail({
-      to: input.customer.email,
-      subject: emailTemplate.subject,
-      html: emailTemplate.html,
-      template: "order-confirmation"
-    });
+  const customerTemplate = orderConfirmationEmail({
+    orderNumber,
+    customerName: customer.name,
+    phone: customer.phone,
+    address: customer.address,
+    city: customer.city,
+    items: input.items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price
+    })),
+    subtotal,
+    total,
+    business: businessContacts
+  });
+
+  const adminTemplate = adminOrderAlertEmail({
+    orderNumber,
+    customerName: customer.name,
+    customerEmail: customer.email,
+    phone: customer.phone,
+    address: customer.address,
+    city: customer.city,
+    items: input.items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price
+    })),
+    subtotal,
+    total,
+    business: businessContacts,
+    notes: input.notes || null
+  });
+
+  const { adminEmail } = await resolveMailConfig();
+  const emailJobs: Array<Promise<unknown>> = [];
+
+  if (input.customer.email) {
+    emailJobs.push(
+      sendMail({
+        to: input.customer.email,
+        subject: customerTemplate.subject,
+        html: customerTemplate.html,
+        template: "order-confirmation"
+      })
+    );
   }
+
+  if (adminEmail) {
+    emailJobs.push(
+      sendMail({
+        to: adminEmail,
+        subject: adminTemplate.subject,
+        html: adminTemplate.html,
+        template: "admin-order-alert"
+      })
+    );
+  }
+
+  await Promise.allSettled(emailJobs);
 
   return order;
 }

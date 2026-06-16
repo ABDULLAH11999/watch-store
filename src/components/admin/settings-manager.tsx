@@ -7,12 +7,9 @@ import { safeJsonParse } from "@/lib/utils";
 type SettingsMap = Record<string, string>;
 
 type EmailSettings = {
-  host: string;
-  port: string;
-  user: string;
-  password: string;
   fromName: string;
   fromEmail: string;
+  adminMail: string;
 };
 
 type BusinessInfo = {
@@ -23,12 +20,9 @@ type BusinessInfo = {
 };
 
 const defaultEmailSettings: EmailSettings = {
-  host: "",
-  port: "587",
-  user: "",
-  password: "",
   fromName: "Anmol Gadgets",
-  fromEmail: ""
+  fromEmail: "",
+  adminMail: ""
 };
 
 const defaultBusinessInfo: BusinessInfo = {
@@ -116,58 +110,20 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
         </section>
 
         <section className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-6">
-          <h2 className="font-heading text-xl sm:text-2xl">Email Settings</h2>
+          <h2 className="font-heading text-xl sm:text-2xl">Resend Settings</h2>
+          <p className="mt-1 text-sm text-black/50">Resend API key stays in env. Configure sender name, sender email, and the admin inbox here.</p>
           <div className="mt-5 grid gap-4">
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-black/60">SMTP Host</span>
-              <input
-                value={emailSettings.host}
-                onChange={(e) => setEmailSettings({ ...emailSettings, host: e.target.value })}
-                className="rounded-2xl border px-4 py-3"
-              />
-            </label>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-black/60">SMTP Port</span>
-                <input
-                  value={emailSettings.port}
-                  onChange={(e) => setEmailSettings({ ...emailSettings, port: e.target.value })}
-                  className="rounded-2xl border px-4 py-3"
-                />
-              </label>
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-black/60">From Name</span>
-                <input
-                  value={emailSettings.fromName}
-                  onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
-                  className="rounded-2xl border px-4 py-3"
-                />
-              </label>
-            </div>
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-black/60">SMTP User</span>
-              <input
-                value={emailSettings.user}
-                onChange={(e) => setEmailSettings({ ...emailSettings, user: e.target.value })}
-                className="rounded-2xl border px-4 py-3"
-              />
-            </label>
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-black/60">SMTP Password</span>
-              <input
-                type="password"
-                value={emailSettings.password}
-                onChange={(e) => setEmailSettings({ ...emailSettings, password: e.target.value })}
-                className="rounded-2xl border px-4 py-3"
-              />
+              <span className="text-sm font-medium text-black/60">From Name</span>
+              <input value={emailSettings.fromName} onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })} className="rounded-2xl border px-4 py-3" />
             </label>
             <label className="grid gap-2">
               <span className="text-sm font-medium text-black/60">From Email</span>
-              <input
-                value={emailSettings.fromEmail}
-                onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
-                className="rounded-2xl border px-4 py-3"
-              />
+              <input value={emailSettings.fromEmail} onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })} className="rounded-2xl border px-4 py-3" />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">Admin Notification Email</span>
+              <input value={emailSettings.adminMail} onChange={(e) => setEmailSettings({ ...emailSettings, adminMail: e.target.value })} className="rounded-2xl border px-4 py-3" />
             </label>
           </div>
         </section>
