@@ -46,10 +46,10 @@ export default async function AdminOrdersPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.4em] text-gold sm:text-sm">Orders</p>
+          <p className="text-[11px] uppercase tracking-[0.4em] text-black/45 sm:text-sm">Orders</p>
           <h1 className="mt-2 font-heading text-3xl leading-tight sm:text-5xl">Order Management</h1>
         </div>
-        <a href="/admin/orders/new" className="inline-flex items-center justify-center rounded-full bg-gold px-4 py-3 text-sm font-semibold text-black">
+        <a href="/admin/orders/new" className="inline-flex items-center justify-center rounded-full bg-black px-4 py-3 text-sm font-semibold text-white">
           Create Order
         </a>
       </div>

@@ -4,7 +4,7 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: npm run build && npx prisma db push && npx prisma db seed
+    buildCommand: npx prisma db push && npx prisma db seed && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:

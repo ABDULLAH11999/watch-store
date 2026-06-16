@@ -53,10 +53,10 @@ export function SeoManager({ initialSettings }: { initialSettings: SeoMap }) {
     <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-gold">SEO Settings</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-black/45">SEO Settings</p>
           <h2 className="mt-2 font-heading text-3xl">Search & Social Meta</h2>
         </div>
-        <button onClick={save} className="rounded-full bg-ink px-4 py-3 text-sm font-semibold text-white">
+        <button onClick={save} className="rounded-full bg-black px-4 py-3 text-sm font-semibold text-white">
           {saving ? "Saving..." : "Save SEO"}
         </button>
       </div>

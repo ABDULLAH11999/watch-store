@@ -66,99 +66,111 @@ export function CustomerManager({ initialCustomers }: { initialCustomers: Custom
   const totalPages = Math.max(1, Math.ceil(filteredCustomers.length / pageSize));
   const pagedCustomers = useMemo(() => filteredCustomers.slice((page - 1) * pageSize, page * pageSize), [filteredCustomers, page]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  useEffect(() => setPage(1), [search]);
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
-      <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-        <h2 className="font-heading text-3xl">{selected ? "Edit Customer" : "Add Customer"}</h2>
-        <div className="mt-4 grid gap-3">
-          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="rounded-2xl border px-4 py-3" />
-          <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Phone" className="rounded-2xl border px-4 py-3" />
-          <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email" className="rounded-2xl border px-4 py-3" />
-          <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="City" className="rounded-2xl border px-4 py-3" />
-          <textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Address" rows={4} className="rounded-2xl border px-4 py-3" />
-          <button onClick={save} className="rounded-2xl bg-gold px-4 py-3 font-semibold text-black">
-            Save Customer
-          </button>
-        </div>
-      </div>
-      <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="font-heading text-3xl">Customers</h2>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customers" className="w-full rounded-2xl border px-4 py-3 md:max-w-xs" />
-        </div>
-        <div className="overflow-hidden rounded-3xl border border-black/10">
-          <div className="max-h-[720px] overflow-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
-              <thead className="sticky top-0 bg-[#faf7f2] text-black/50">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Customer</th>
-                  <th className="px-4 py-3 font-medium">Phone</th>
-                  <th className="px-4 py-3 font-medium">City</th>
-                  <th className="px-4 py-3 font-medium">Email</th>
-                  <th className="px-4 py-3 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pagedCustomers.map((customer) => (
-                  <tr key={customer.id} className="border-t border-black/5">
-                    <td className="px-4 py-4 font-medium">{customer.name}</td>
-                    <td className="px-4 py-4">{customer.phone}</td>
-                    <td className="px-4 py-4">{customer.city}</td>
-                    <td className="px-4 py-4">{customer.email || "—"}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex justify-end gap-2">
-                        <Link href={`/admin/customers/${customer.id}`} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">
-                          View
-                        </Link>
-                        <button onClick={() => setSelected(customer)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">
-                          Edit
-                        </button>
-                        <button onClick={() => remove(customer.id)} className="rounded-full border border-red-200 px-3 py-2 text-xs font-semibold text-red-600">
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filteredCustomers.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-black/50">
-                      No customers yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+    <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
+      <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
+        <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
+          <h2 className="font-heading text-3xl">{selected ? "Edit Customer" : "Add Customer"}</h2>
+          <div className="mt-4 grid gap-3">
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="rounded-2xl border border-black/10 px-4 py-3" />
+            <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Phone" className="rounded-2xl border border-black/10 px-4 py-3" />
+            <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email" className="rounded-2xl border border-black/10 px-4 py-3" />
+            <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="City" className="rounded-2xl border border-black/10 px-4 py-3" />
+            <textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Address" rows={4} className="rounded-2xl border border-black/10 px-4 py-3" />
+            <button onClick={save} className="rounded-2xl bg-black px-4 py-3 font-semibold text-white">
+              {selected ? "Update Customer" : "Save Customer"}
+            </button>
           </div>
         </div>
-        <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-          <p className="text-black/50">
-            Showing {filteredCustomers.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredCustomers.length)} of {filteredCustomers.length}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
-              disabled={page === 1}
-              className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40"
-            >
-              Prev
-            </button>
-            <span className="rounded-full bg-black/5 px-3 py-2 font-semibold text-black/70">
-              {page} / {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-              disabled={page === totalPages}
-              className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40"
-            >
-              Next
-            </button>
+
+        <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <h2 className="font-heading text-3xl">Customers</h2>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customers" className="w-full rounded-2xl border border-black/10 px-4 py-3 md:max-w-xs" />
+          </div>
+
+          <div className="grid gap-4 lg:hidden">
+            {pagedCustomers.map((customer) => (
+              <div key={customer.id} className="rounded-3xl border border-black/10 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{customer.name}</p>
+                    <p className="mt-1 text-sm text-black/55">{customer.phone}</p>
+                    <p className="text-sm text-black/55">{customer.city}</p>
+                    <p className="text-xs text-black/45">{customer.email || "—"}</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <Link href={`/admin/customers/${customer.id}`} className="flex-1 rounded-2xl border border-black px-3 py-3 text-center text-sm font-semibold">
+                    View
+                  </Link>
+                  <button onClick={() => setSelected(customer)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                    Edit
+                  </button>
+                  <button onClick={() => remove(customer.id)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden overflow-hidden rounded-3xl border border-black/10 lg:block">
+            <div className="max-h-[720px] overflow-auto">
+              <table className="w-full min-w-[720px] text-left text-sm">
+                <thead className="sticky top-0 bg-white text-black/50">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Customer</th>
+                    <th className="px-4 py-3 font-medium">Phone</th>
+                    <th className="px-4 py-3 font-medium">City</th>
+                    <th className="px-4 py-3 font-medium">Email</th>
+                    <th className="px-4 py-3 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagedCustomers.map((customer) => (
+                    <tr key={customer.id} className="border-t border-black/5">
+                      <td className="px-4 py-4 font-medium">{customer.name}</td>
+                      <td className="px-4 py-4">{customer.phone}</td>
+                      <td className="px-4 py-4">{customer.city}</td>
+                      <td className="px-4 py-4">{customer.email || "—"}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex justify-end gap-2">
+                          <Link href={`/admin/customers/${customer.id}`} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
+                            View
+                          </Link>
+                          <button onClick={() => setSelected(customer)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
+                            Edit
+                          </button>
+                          <button onClick={() => remove(customer.id)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3 text-sm">
+            <p className="text-black/50">
+              Showing {filteredCustomers.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredCustomers.length)} of {filteredCustomers.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">
+                Prev
+              </button>
+              <span className="rounded-full bg-black/5 px-3 py-2 font-semibold text-black/70">
+                {page} / {totalPages}
+              </span>
+              <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={page === totalPages} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>

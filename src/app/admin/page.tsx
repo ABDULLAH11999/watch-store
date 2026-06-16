@@ -52,7 +52,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="space-y-1 md:space-y-2">
-        <p className="text-[11px] uppercase tracking-[0.4em] text-gold md:text-sm">Dashboard</p>
+        <p className="text-[11px] uppercase tracking-[0.4em] text-black/45 md:text-sm">Dashboard</p>
         <h1 className="font-heading text-3xl leading-tight md:text-5xl">Overview</h1>
         <p className="max-w-2xl text-sm leading-6 text-black/55 md:text-base">
           Track orders, revenue, customers, and content health from one luxury-styled admin console.
@@ -70,7 +70,7 @@ export default async function AdminDashboardPage() {
           <div className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm md:p-6">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-heading text-2xl md:text-3xl">Recent Orders</h2>
-              <a href="/admin/orders" className="text-sm font-semibold text-brown">
+              <a href="/admin/orders" className="text-sm font-semibold text-black">
                 View all
               </a>
             </div>
@@ -94,7 +94,7 @@ export default async function AdminDashboardPage() {
           <div className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm md:p-6">
             <div className="flex items-center justify-between">
               <h2 className="font-heading text-2xl md:text-3xl">Testimonials</h2>
-              <a href="/admin/testimonials" className="text-sm font-semibold text-brown">
+              <a href="/admin/testimonials" className="text-sm font-semibold text-black">
                 Manage
               </a>
             </div>

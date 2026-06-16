@@ -69,7 +69,7 @@ export function OrderCreateForm({ products }: { products: Product[] }) {
             />
           ))}
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Order notes" rows={4} className="rounded-2xl border px-4 py-3" />
-          <button onClick={submit} disabled={loading} className="rounded-2xl bg-gold px-4 py-3 font-semibold text-black">
+          <button onClick={submit} disabled={loading} className="rounded-2xl bg-black px-4 py-3 font-semibold text-white">
             {loading ? "Creating..." : "Create Order"}
           </button>
         </div>

@@ -2,47 +2,49 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { safeJsonParse } from "@/lib/utils";
 
 type SettingsMap = Record<string, string>;
 
-const defaultSettings = {
-  siteTitle: "Anmol Gadgets",
-  titleTemplate: "%s | Anmol Gadgets",
-  metaDescription: "",
-  canonicalUrl: "",
-  metaKeywords: "",
-  ogTitle: "",
-  ogDescription: "",
-  ogImage: "",
-  headerScripts: "",
-  footerScripts: "",
-  robotsTxt: "",
-  emailSettings: JSON.stringify(
-    {
-      host: "",
-      port: "587",
-      user: "",
-      password: "",
-      fromName: "Anmol Gadgets",
-      fromEmail: ""
-    },
-    null,
-    2
-  ),
-  businessInfo: JSON.stringify(
-    {
-      contactPhone: "",
-      contactEmail: "",
-      shopAddress: "",
-      whatsappNumber: ""
-    },
-    null,
-    2
-  )
+type EmailSettings = {
+  host: string;
+  port: string;
+  user: string;
+  password: string;
+  fromName: string;
+  fromEmail: string;
+};
+
+type BusinessInfo = {
+  contactPhone: string;
+  contactEmail: string;
+  shopAddress: string;
+  whatsappNumber: string;
+};
+
+const defaultEmailSettings: EmailSettings = {
+  host: "",
+  port: "587",
+  user: "",
+  password: "",
+  fromName: "Anmol Gadgets",
+  fromEmail: ""
+};
+
+const defaultBusinessInfo: BusinessInfo = {
+  contactPhone: "",
+  contactEmail: "",
+  shopAddress: "",
+  whatsappNumber: ""
 };
 
 export function SettingsManager({ initialSettings }: { initialSettings: SettingsMap }) {
-  const [settings, setSettings] = useState({ ...defaultSettings, ...initialSettings });
+  const [emailSettings, setEmailSettings] = useState<EmailSettings>(
+    safeJsonParse(initialSettings.emailSettings, defaultEmailSettings)
+  );
+  const [businessInfo, setBusinessInfo] = useState<BusinessInfo>(
+    safeJsonParse(initialSettings.businessInfo, defaultBusinessInfo)
+  );
   const [saving, setSaving] = useState(false);
 
   async function save() {
@@ -50,37 +52,129 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
     const response = await fetch("/api/admin/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ values: settings })
+      body: JSON.stringify({
+        values: {
+          emailSettings: JSON.stringify(emailSettings, null, 2),
+          businessInfo: JSON.stringify(businessInfo, null, 2)
+        }
+      })
     });
     setSaving(false);
-    if (!response.ok) return toast.error("Unable to save settings");
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      toast.error(data.error || "Unable to save settings");
+      return;
+    }
     toast.success("Settings saved");
   }
 
   return (
-    <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-      <h2 className="font-heading text-3xl">Business & Email Settings</h2>
-      <div className="mt-6 grid gap-4">
-        {Object.entries(settings).map(([key, value]) => (
-          <label key={key} className="space-y-2">
-            <span className="block text-sm font-medium capitalize text-black/60">{key}</span>
-            {key.includes("Scripts") || key.endsWith("Txt") || key.includes("Description") || key.includes("Keywords") || key.includes("Info") || key.includes("Settings") ? (
-              <textarea
-                value={value}
-                onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
-                rows={key.includes("Scripts") || key.includes("Settings") || key.includes("Info") ? 6 : 3}
-                className="w-full rounded-2xl border px-4 py-3 font-mono text-sm"
-              />
-            ) : (
+    <div className="space-y-6">
+      <div>
+        <p className="text-[11px] uppercase tracking-[0.35em] text-black/45">Settings</p>
+        <h1 className="mt-2 font-heading text-3xl md:text-5xl">Business & Email</h1>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <section className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
+          <h2 className="font-heading text-2xl">Business Information</h2>
+          <div className="mt-5 grid gap-4">
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">Contact Phone</span>
               <input
-                value={value}
-                onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
-                className="w-full rounded-2xl border px-4 py-3"
+                value={businessInfo.contactPhone}
+                onChange={(e) => setBusinessInfo({ ...businessInfo, contactPhone: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
               />
-            )}
-          </label>
-        ))}
-        <button onClick={save} className="rounded-2xl bg-gold px-4 py-3 font-semibold text-black">
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">Contact Email</span>
+              <input
+                value={businessInfo.contactEmail}
+                onChange={(e) => setBusinessInfo({ ...businessInfo, contactEmail: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">Shop Address</span>
+              <textarea
+                value={businessInfo.shopAddress}
+                onChange={(e) => setBusinessInfo({ ...businessInfo, shopAddress: e.target.value })}
+                rows={4}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">WhatsApp Number</span>
+              <input
+                value={businessInfo.whatsappNumber}
+                onChange={(e) => setBusinessInfo({ ...businessInfo, whatsappNumber: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
+          <h2 className="font-heading text-2xl">Email Settings</h2>
+          <div className="mt-5 grid gap-4">
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">SMTP Host</span>
+              <input
+                value={emailSettings.host}
+                onChange={(e) => setEmailSettings({ ...emailSettings, host: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2">
+                <span className="text-sm font-medium text-black/60">SMTP Port</span>
+                <input
+                  value={emailSettings.port}
+                  onChange={(e) => setEmailSettings({ ...emailSettings, port: e.target.value })}
+                  className="rounded-2xl border px-4 py-3"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-medium text-black/60">From Name</span>
+                <input
+                  value={emailSettings.fromName}
+                  onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
+                  className="rounded-2xl border px-4 py-3"
+                />
+              </label>
+            </div>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">SMTP User</span>
+              <input
+                value={emailSettings.user}
+                onChange={(e) => setEmailSettings({ ...emailSettings, user: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">SMTP Password</span>
+              <input
+                type="password"
+                value={emailSettings.password}
+                onChange={(e) => setEmailSettings({ ...emailSettings, password: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">From Email</span>
+              <input
+                value={emailSettings.fromEmail}
+                onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <div className="flex justify-end">
+        <button onClick={save} disabled={saving} className="rounded-2xl bg-black px-6 py-3 font-semibold text-white disabled:opacity-60">
           {saving ? "Saving..." : "Save Settings"}
         </button>
       </div>

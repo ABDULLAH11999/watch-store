@@ -37,17 +37,35 @@ export function EmailManager({ initialLogs }: { initialLogs: Log[] }) {
   }
 
   return (
-    <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="font-heading text-3xl">Email</h2>
-        <button onClick={sendTestEmail} className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white">
+    <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.35em] text-black/45">Operations</p>
+          <h2 className="mt-2 font-heading text-3xl">Email</h2>
+        </div>
+        <button onClick={sendTestEmail} className="rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white">
           {testing ? "Sending..." : "Send Test Email"}
         </button>
       </div>
-      <div className="overflow-hidden rounded-3xl border border-black/10">
+
+      <div className="grid gap-4 lg:hidden">
+        {logs.map((log) => (
+          <div key={log.id} className="rounded-3xl border border-black/10 p-4">
+            <p className="font-semibold">{log.subject}</p>
+            <p className="mt-1 text-sm text-black/55">{log.toEmail}</p>
+            <p className="mt-1 text-xs text-black/45">{log.status}</p>
+            <p className="mt-1 text-xs text-black/45">{new Date(log.sentAt).toLocaleString()}</p>
+            <button onClick={() => resend(log.id)} className="mt-4 w-full rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+              {resending === log.id ? "Resending..." : "Resend"}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-3xl border border-black/10 lg:block">
         <div className="max-h-[720px] overflow-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="sticky top-0 bg-[#faf7f2] text-black/50">
+            <thead className="sticky top-0 bg-white text-black/50">
               <tr>
                 <th className="px-4 py-3 font-medium">Subject</th>
                 <th className="px-4 py-3 font-medium">Recipient</th>
@@ -65,20 +83,13 @@ export function EmailManager({ initialLogs }: { initialLogs: Log[] }) {
                   <td className="px-4 py-4">{new Date(log.sentAt).toLocaleString()}</td>
                   <td className="px-4 py-4">
                     <div className="flex justify-end">
-                      <button onClick={() => resend(log.id)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">
+                      <button onClick={() => resend(log.id)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
                         {resending === log.id ? "Resending..." : "Resend"}
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {logs.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-black/50">
-                    No email logs yet.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>

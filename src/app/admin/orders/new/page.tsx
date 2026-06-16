@@ -17,7 +17,7 @@ export default async function AdminCreateOrderPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm uppercase tracking-[0.4em] text-gold">Orders</p>
+        <p className="text-sm uppercase tracking-[0.4em] text-black/45">Orders</p>
         <h1 className="mt-2 font-heading text-5xl">Create Order</h1>
       </div>
       <OrderCreateForm products={serialized} />

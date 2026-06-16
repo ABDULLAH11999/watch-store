@@ -44,9 +44,9 @@ export function DbBackupPanel() {
         Make sure the database URL is configured and the Postgres client tools are installed on the machine running the app.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
-        <button onClick={downloadBackup} disabled={loading} className="rounded-2xl bg-gold px-5 py-3 font-semibold text-black disabled:opacity-60">
-          {loading ? "Preparing backup..." : "Download Database Backup"}
-        </button>
+      <button onClick={downloadBackup} disabled={loading} className="rounded-2xl bg-black px-5 py-3 font-semibold text-white disabled:opacity-60">
+        {loading ? "Preparing backup..." : "Download Database Backup"}
+      </button>
         <a href="/api/admin/backup-db" className="rounded-2xl border border-black/10 px-5 py-3 font-semibold">
           Direct Download
         </a>

@@ -133,7 +133,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-heading text-3xl">{selected ? "Edit Product" : "Add Product"}</h2>
           {selected && (
-            <button className="text-sm text-brown" onClick={() => setSelected(null)}>
+            <button className="text-sm text-black/60" onClick={() => setSelected(null)}>
               Cancel
             </button>
           )}
@@ -184,7 +184,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
               </div>
             ))}
           </div>
-          <button onClick={submit} className="rounded-2xl bg-gold px-4 py-3 font-semibold text-black">
+          <button onClick={submit} className="rounded-2xl bg-black px-4 py-3 font-semibold text-white">
             {selected ? "Update Product" : "Create Product"}
           </button>
         </div>
@@ -203,7 +203,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
         <div className="overflow-hidden rounded-3xl border border-black/10">
           <div className="max-h-[720px] overflow-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="sticky top-0 bg-[#faf7f2] text-black/50">
+              <thead className="sticky top-0 bg-white text-black/50">
                 <tr>
                   <th className="px-4 py-3 font-medium">Product</th>
                   <th className="px-4 py-3 font-medium">Brand</th>
@@ -224,7 +224,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
                           ) : null}
                         </div>
                         <div>
-                          <p className="font-medium text-ink">{product.name}</p>
+                          <p className="font-medium text-black">{product.name}</p>
                           <p className="text-xs text-black/45">{product.slug}</p>
                         </div>
                       </div>

@@ -43,29 +43,27 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
 
   const filteredOrders = orders.filter((order) => {
     const query = search.toLowerCase();
-    const matchesSearch =
-      !query ||
-      order.orderNumber.toLowerCase().includes(query) ||
-      order.customer.name.toLowerCase().includes(query) ||
-      order.customer.phone.toLowerCase().includes(query);
+    const matchesSearch = !query || order.orderNumber.toLowerCase().includes(query) || order.customer.name.toLowerCase().includes(query) || order.customer.phone.toLowerCase().includes(query);
     const matchesStatus = statusFilter === "ALL" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
   const pageSize = 10;
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
   const pagedOrders = useMemo(() => filteredOrders.slice((page - 1) * pageSize, page * pageSize), [filteredOrders, page]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, statusFilter]);
+  useEffect(() => setPage(1), [search, statusFilter]);
 
   return (
-    <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <h2 className="font-heading text-3xl">Orders</h2>
+    <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.35em] text-black/45">Sales</p>
+          <h2 className="mt-2 font-heading text-3xl">Orders</h2>
+        </div>
         <div className="flex flex-col gap-3 md:flex-row">
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search orders" className="rounded-2xl border px-4 py-3 md:w-72" />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-2xl border px-4 py-3 md:w-48">
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search orders" className="rounded-2xl border border-black/10 px-4 py-3 md:w-72" />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-2xl border border-black/10 px-4 py-3 md:w-48">
             <option value="ALL">All Status</option>
             {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
               <option key={status} value={status}>
@@ -73,15 +71,52 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
               </option>
             ))}
           </select>
-          <a href="/api/admin/orders/export" className="rounded-full bg-ink px-4 py-3 text-sm font-semibold text-white text-center">
+          <a href="/api/admin/orders/export" className="rounded-2xl bg-black px-4 py-3 text-center text-sm font-semibold text-white">
             Export CSV
           </a>
         </div>
       </div>
-      <div className="overflow-hidden rounded-3xl border border-black/10">
+
+      <div className="grid gap-4 lg:hidden">
+        {pagedOrders.map((order) => (
+          <div key={order.id} className="rounded-3xl border border-black/10 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold">{order.orderNumber}</p>
+                <p className="mt-1 text-sm text-black/55">{order.customer.name}</p>
+                <p className="text-xs text-black/45">{order.customer.phone}</p>
+              </div>
+              <span className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold">{order.status}</span>
+            </div>
+            <div className="mt-4 flex items-center justify-between text-sm">
+              <span>Total</span>
+              <span className="font-semibold">{formatPKR(order.total)}</span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="rounded-2xl border border-black/10 px-4 py-3 text-sm">
+                {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => setSelected(order)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                  View
+                </button>
+                <button onClick={() => resend(order.id)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                  Resend
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-3xl border border-black/10 lg:block">
         <div className="max-h-[760px] overflow-auto">
           <table className="w-full min-w-[980px] text-left text-sm">
-            <thead className="sticky top-0 bg-[#faf7f2] text-black/50">
+            <thead className="sticky top-0 bg-white text-black/50">
               <tr>
                 <th className="px-4 py-3 font-medium">Order</th>
                 <th className="px-4 py-3 font-medium">Customer</th>
@@ -101,7 +136,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
                   </td>
                   <td className="px-4 py-4">{formatPKR(order.total)}</td>
                   <td className="px-4 py-4">
-                    <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="rounded-2xl border px-3 py-2 text-xs">
+                    <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="rounded-2xl border border-black/10 px-3 py-2 text-xs">
                       {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
                         <option key={status} value={status}>
                           {status}
@@ -112,59 +147,39 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
                   <td className="px-4 py-4">{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-4">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setSelected(order)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">
+                      <button onClick={() => setSelected(order)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
                         View
                       </button>
-                      <button onClick={() => resend(order.id)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">
+                      <button onClick={() => resend(order.id)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
                         Resend
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {filteredOrders.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-black/50">
-                    No orders yet.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3 text-sm">
+
+      <div className="flex items-center justify-between gap-3 text-sm">
         <p className="text-black/50">
           Showing {filteredOrders.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredOrders.length)} of {filteredOrders.length}
         </p>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-            disabled={page === 1}
-            className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40"
-          >
+          <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">
             Prev
           </button>
           <span className="rounded-full bg-black/5 px-3 py-2 font-semibold text-black/70">
             {page} / {totalPages}
           </span>
-          <button
-            type="button"
-            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-            disabled={page === totalPages}
-            className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40"
-          >
+          <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={page === totalPages} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">
             Next
           </button>
         </div>
       </div>
-      <OrderDetailModal
-        order={selected}
-        onClose={() => setSelected(null)}
-        onUpdateStatus={updateStatus}
-        onResend={resend}
-      />
+
+      <OrderDetailModal order={selected} onClose={() => setSelected(null)} onUpdateStatus={updateStatus} onResend={resend} />
     </div>
   );
 }

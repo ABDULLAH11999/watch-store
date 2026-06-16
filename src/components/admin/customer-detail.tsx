@@ -49,7 +49,7 @@ export function CustomerDetail({ customer, orders }: { customer: Customer; order
               className="rounded-2xl border px-4 py-3"
             />
           ))}
-          <button onClick={save} className="rounded-2xl bg-gold px-4 py-3 font-semibold text-black">
+          <button onClick={save} className="rounded-2xl bg-black px-4 py-3 font-semibold text-white">
             Save Customer
           </button>
         </div>

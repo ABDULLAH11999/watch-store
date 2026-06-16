@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import Image from "next/image";
 import { useMediaUploader } from "@/components/media-uploader";
 
 type Testimonial = {
@@ -68,116 +69,127 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
   const totalPages = Math.max(1, Math.ceil(filteredTestimonials.length / pageSize));
   const pagedTestimonials = useMemo(() => filteredTestimonials.slice((page - 1) * pageSize, page * pageSize), [filteredTestimonials, page]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  useEffect(() => setPage(1), [search]);
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
-      <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-        <h2 className="font-heading text-3xl">{selected ? "Edit Testimonial" : "Add Testimonial"}</h2>
-        <div className="mt-4 grid gap-3">
-          <input value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} placeholder="Customer Name" className="rounded-2xl border px-4 py-3" />
-          <input value={form.customerImage} onChange={(e) => setForm({ ...form, customerImage: e.target.value })} placeholder="Image URL" className="rounded-2xl border px-4 py-3" />
-          <input type="file" accept="image/*" onChange={async (e) => {
-            const urls = await uploadFiles(e.target.files);
-            if (urls[0]) setForm({ ...form, customerImage: urls[0] });
-          }} className="rounded-2xl border px-4 py-3" />
-          <select value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} className="rounded-2xl border px-4 py-3">
-            {[1, 2, 3, 4, 5].map((rating) => <option key={rating} value={rating}>{rating} Stars</option>)}
-          </select>
-          <textarea value={form.reviewText} onChange={(e) => setForm({ ...form, reviewText: e.target.value })} placeholder="Review" rows={5} className="rounded-2xl border px-4 py-3" />
-          <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="rounded-2xl border px-4 py-3">
-            <option value="DRAFT">Draft</option>
-            <option value="PUBLISHED">Published</option>
-          </select>
-          <input value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} placeholder="Sort order" className="rounded-2xl border px-4 py-3" />
-          <button onClick={save} className="rounded-2xl bg-gold px-4 py-3 font-semibold text-black">
-            {uploading ? "Uploading..." : "Save Testimonial"}
-          </button>
-        </div>
-      </div>
-      <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="font-heading text-3xl">Testimonials</h2>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search testimonials" className="w-full rounded-2xl border px-4 py-3 md:max-w-xs" />
-        </div>
-        <div className="overflow-hidden rounded-3xl border border-black/10">
-          <div className="max-h-[720px] overflow-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="sticky top-0 bg-[#faf7f2] text-black/50">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Testimonial</th>
-                  <th className="px-4 py-3 font-medium">Rating</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Sort</th>
-                  <th className="px-4 py-3 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pagedTestimonials.map((item) => (
-                  <tr key={item.id} className="border-t border-black/5">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 overflow-hidden rounded-2xl bg-black/5">
-                          <img src={item.customerImage} alt={item.customerName} className="h-full w-full object-cover" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{item.customerName}</p>
-                          <p className="max-w-sm truncate text-xs text-black/45">{item.reviewText}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">{item.rating} / 5</td>
-                    <td className="px-4 py-4">{item.status}</td>
-                    <td className="px-4 py-4">{item.sortOrder}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => setSelected(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">
-                          Edit
-                        </button>
-                        <button onClick={() => remove(item.id)} className="rounded-full border border-red-200 px-3 py-2 text-xs font-semibold text-red-600">
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filteredTestimonials.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-black/50">
-                      No testimonials yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+    <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
+      <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
+        <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
+          <h2 className="font-heading text-3xl">{selected ? "Edit Testimonial" : "Add Testimonial"}</h2>
+          <div className="mt-4 grid gap-3">
+            <input value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} placeholder="Customer Name" className="rounded-2xl border border-black/10 px-4 py-3" />
+            <input value={form.customerImage} onChange={(e) => setForm({ ...form, customerImage: e.target.value })} placeholder="Image URL" className="rounded-2xl border border-black/10 px-4 py-3" />
+            <input type="file" accept="image/*" onChange={async (e) => {
+              const urls = await uploadFiles(e.target.files);
+              if (urls[0]) setForm({ ...form, customerImage: urls[0] });
+            }} className="rounded-2xl border border-black/10 px-4 py-3" />
+            <select value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} className="rounded-2xl border border-black/10 px-4 py-3">
+              {[1, 2, 3, 4, 5].map((rating) => <option key={rating} value={rating}>{rating} Stars</option>)}
+            </select>
+            <textarea value={form.reviewText} onChange={(e) => setForm({ ...form, reviewText: e.target.value })} placeholder="Review" rows={5} className="rounded-2xl border border-black/10 px-4 py-3" />
+            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="rounded-2xl border border-black/10 px-4 py-3">
+              <option value="DRAFT">Draft</option>
+              <option value="PUBLISHED">Published</option>
+            </select>
+            <input value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} placeholder="Sort order" className="rounded-2xl border border-black/10 px-4 py-3" />
+            <button onClick={save} className="rounded-2xl bg-black px-4 py-3 font-semibold text-white">
+              {uploading ? "Uploading..." : selected ? "Update Testimonial" : "Save Testimonial"}
+            </button>
           </div>
         </div>
-        <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-          <p className="text-black/50">
-            Showing {filteredTestimonials.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredTestimonials.length)} of {filteredTestimonials.length}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
-              disabled={page === 1}
-              className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40"
-            >
-              Prev
-            </button>
-            <span className="rounded-full bg-black/5 px-3 py-2 font-semibold text-black/70">
-              {page} / {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-              disabled={page === totalPages}
-              className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40"
-            >
-              Next
-            </button>
+
+        <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="font-heading text-3xl">Testimonials</h2>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search testimonials" className="w-full rounded-2xl border border-black/10 px-4 py-3 md:max-w-xs" />
+          </div>
+
+          <div className="grid gap-4 lg:hidden">
+            {pagedTestimonials.map((item) => (
+              <div key={item.id} className="rounded-3xl border border-black/10 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-16 w-16 overflow-hidden rounded-2xl border border-black/10 bg-black/5">
+                    <Image src={item.customerImage} alt={item.customerName} width={64} height={64} className="h-full w-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold">{item.customerName}</p>
+                    <p className="mt-1 text-sm text-black/55 line-clamp-2">{item.reviewText}</p>
+                    <p className="mt-2 text-xs text-black/45">Rating {item.rating} / 5</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <button onClick={() => setSelected(item)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                    Edit
+                  </button>
+                  <button onClick={() => remove(item.id)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden overflow-hidden rounded-3xl border border-black/10 lg:block">
+            <div className="max-h-[720px] overflow-auto">
+              <table className="w-full min-w-[760px] text-left text-sm">
+                <thead className="sticky top-0 bg-white text-black/50">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Testimonial</th>
+                    <th className="px-4 py-3 font-medium">Rating</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Sort</th>
+                    <th className="px-4 py-3 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagedTestimonials.map((item) => (
+                    <tr key={item.id} className="border-t border-black/5">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 overflow-hidden rounded-2xl border border-black/10 bg-black/5">
+                            <Image src={item.customerImage} alt={item.customerName} width={48} height={48} className="h-full w-full object-cover" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{item.customerName}</p>
+                            <p className="max-w-sm truncate text-xs text-black/45">{item.reviewText}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">{item.rating} / 5</td>
+                      <td className="px-4 py-4">{item.status}</td>
+                      <td className="px-4 py-4">{item.sortOrder}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => setSelected(item)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
+                            Edit
+                          </button>
+                          <button onClick={() => remove(item.id)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3 text-sm">
+            <p className="text-black/50">
+              Showing {filteredTestimonials.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredTestimonials.length)} of {filteredTestimonials.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">
+                Prev
+              </button>
+              <span className="rounded-full bg-black/5 px-3 py-2 font-semibold text-black/70">
+                {page} / {totalPages}
+              </span>
+              <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={page === totalPages} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>

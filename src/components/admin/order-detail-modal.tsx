@@ -33,7 +33,7 @@ export function OrderDetailModal({
       <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b pb-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.4em] text-gold">Order Detail</p>
+            <p className="text-sm uppercase tracking-[0.4em] text-black/45">Order Detail</p>
             <h2 className="font-heading text-3xl">{order.orderNumber}</h2>
           </div>
           <button onClick={onClose}>
@@ -50,14 +50,14 @@ export function OrderDetailModal({
               <p>{order.customer.email || "No email"}</p>
               <p>{order.customer.address || "No address"}</p>
               <p>{order.customer.city || "No city"}</p>
-              <p><span className="rounded-full bg-[#f8efe1] px-3 py-1 font-semibold text-brown">Cash on Delivery</span></p>
+              <p><span className="rounded-full border border-black/10 px-3 py-1 font-semibold text-black">Cash on Delivery</span></p>
             </div>
           </div>
           <div className="rounded-3xl border border-black/10 p-4">
             <h3 className="font-heading text-2xl">Status Timeline</h3>
             <div className="mt-3 space-y-2">
               {steps.map((step) => (
-                <div key={step} className={`rounded-2xl px-3 py-2 text-sm ${order.status === step ? "bg-gold text-black" : "bg-black/5"}`}>
+                <div key={step} className={`rounded-2xl px-3 py-2 text-sm ${order.status === step ? "bg-black text-white" : "bg-black/5"}`}>
                   {step}
                 </div>
               ))}
