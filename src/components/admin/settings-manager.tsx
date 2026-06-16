@@ -72,12 +72,12 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
     <div className="space-y-6">
       <div>
         <p className="text-[11px] uppercase tracking-[0.35em] text-black/45">Settings</p>
-        <h1 className="mt-2 font-heading text-3xl md:text-5xl">Business & Email</h1>
+        <h1 className="mt-2 font-heading text-2xl md:text-5xl">Business & Email</h1>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <section className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-          <h2 className="font-heading text-2xl">Business Information</h2>
+        <section className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-6">
+          <h2 className="font-heading text-xl sm:text-2xl">Business Information</h2>
           <div className="mt-5 grid gap-4">
             <label className="grid gap-2">
               <span className="text-sm font-medium text-black/60">Contact Phone</span>
@@ -115,8 +115,8 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
           </div>
         </section>
 
-        <section className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-          <h2 className="font-heading text-2xl">Email Settings</h2>
+        <section className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-6">
+          <h2 className="font-heading text-xl sm:text-2xl">Email Settings</h2>
           <div className="mt-5 grid gap-4">
             <label className="grid gap-2">
               <span className="text-sm font-medium text-black/60">SMTP Host</span>
@@ -173,7 +173,7 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
         </section>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-stretch sm:justify-end">
         <button onClick={save} disabled={saving} className="rounded-2xl bg-black px-6 py-3 font-semibold text-white disabled:opacity-60">
           {saving ? "Saving..." : "Save Settings"}
         </button>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { HeroVideo } from "@/components/hero-video";
 import { VideoCardRow } from "@/components/video-card-row";
@@ -84,22 +83,11 @@ export default async function HomePage() {
           <HeroVideo />
         </div>
 
-        <section className="order-2 mx-auto max-w-7xl px-4 py-4 sm:py-6 lg:px-8 lg:py-10">
-          <div className="mb-3 flex items-center justify-between gap-3 sm:mb-6 sm:items-end sm:gap-4">
-            <div className="min-w-0">
-              <p className="hidden text-sm uppercase tracking-[0.4em] text-gold sm:block">Curated Portrait Stories</p>
-              <h2 className="truncate font-heading text-2xl text-ink sm:mt-2 sm:text-3xl">Anmol Gadgets</h2>
-            </div>
-            <Link
-              href="/collections"
-              className="inline-flex shrink-0 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 sm:px-5 sm:py-3"
-            >
-              View Collection
-            </Link>
-          </div>
-        </section>
+        <div className="order-2">
+          <BrandStrip />
+        </div>
 
-        <section className="order-3 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:order-4 lg:px-8 lg:py-16">
+        <section className="order-3 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-16">
           <div className="mb-4 sm:mb-8">
             <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm sm:tracking-[0.4em]">Featured Products</p>
             <h2 className="mt-1 font-heading text-2xl sm:mt-2 sm:text-4xl">Luxury Watches</h2>
@@ -107,19 +95,15 @@ export default async function HomePage() {
           <FeaturedProductsGrid products={featured} />
         </section>
 
-        <div className="order-4 lg:order-3">
+        <div className="order-4">
           <VideoCardRow />
         </div>
 
         <div className="order-5">
-          <BrandStrip />
-        </div>
-
-        <div className="order-6">
           <CinematicBanner />
         </div>
 
-        <section className="order-7 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-16">
+        <section className="order-6 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-16">
           <div className="mb-4 sm:mb-8">
             <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm sm:tracking-[0.4em]">Testimonials</p>
             <h2 className="mt-1 font-heading text-2xl sm:mt-2 sm:text-4xl">What Our Customers Say</h2>
@@ -127,7 +111,7 @@ export default async function HomePage() {
           <TestimonialCarousel items={testimonials} />
         </section>
 
-        <div className="order-8">
+        <div className="order-7">
           <NewsletterStrip />
         </div>
       </div>

@@ -51,19 +51,19 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
 
   return (
     <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-[0.35em] text-black/45">Catalog</p>
-          <h2 className="mt-2 font-heading text-3xl">Products</h2>
+          <h2 className="mt-2 font-heading text-2xl sm:text-3xl">Products</h2>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products"
-            className="w-full rounded-2xl border border-black/10 px-4 py-3 md:max-w-xs"
+            className="w-full rounded-2xl border border-black/10 px-4 py-3 sm:min-w-[260px] md:max-w-xs"
           />
-          <Link href="/admin/products/new" className="shrink-0 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white">
+          <Link href="/admin/products/new" className="w-full shrink-0 rounded-2xl bg-black px-4 py-3 text-center text-sm font-semibold text-white sm:w-auto">
             New Product
           </Link>
         </div>
@@ -73,11 +73,11 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
         {pagedProducts.map((product) => (
           <div key={product.id} className="rounded-3xl border border-black/10 p-4">
             <div className="flex gap-3">
-              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-black/10 bg-black/5">
+              <div className="h-18 w-18 shrink-0 overflow-hidden rounded-2xl border border-black/10 bg-black/5 sm:h-20 sm:w-20">
                 {product.images?.[0] ? <Image src={product.images[0]} alt={product.name} width={80} height={80} className="h-full w-full object-cover" /> : null}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold">{product.name}</p>
+                <p className="truncate text-sm font-semibold sm:text-base">{product.name}</p>
                 <p className="mt-1 text-xs text-black/45">{product.slug}</p>
                 <p className="mt-2 text-sm text-black/60">{product.brand}</p>
                 <p className="mt-1 text-sm font-semibold">{formatPKR(product.price)}</p>
@@ -87,11 +87,11 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
               <span className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold">{product.status}</span>
               <span className="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold">Stock {product.stock}</span>
             </div>
-            <div className="mt-4 flex gap-2">
-              <Link href={`/admin/products/${product.id}`} className="flex-1 rounded-2xl border border-black px-3 py-3 text-center text-sm font-semibold">
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href={`/admin/products/${product.id}`} className="rounded-2xl border border-black px-3 py-3 text-center text-sm font-semibold">
                 Edit
               </Link>
-              <button onClick={() => remove(product.id)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold text-black">
+              <button onClick={() => remove(product.id)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold text-black">
                 Delete
               </button>
             </div>

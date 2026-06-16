@@ -1,27 +1,40 @@
+import Image from "next/image";
+import Link from "next/link";
+
 export function CinematicBanner() {
   return (
-    <section className="relative overflow-hidden bg-ink py-8 sm:py-10 lg:py-16">
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
-        <div className="relative overflow-hidden rounded-[2rem] border border-gold/40">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            className="h-[280px] w-full object-cover opacity-70 sm:h-[360px] lg:h-[420px]"
-            poster="/watches/grand-complications-5270.jpg"
-          >
-            <source src="/videos/watch-card-2.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/65" />
-          <div className="absolute inset-0 flex items-center px-4 text-white sm:px-6 lg:px-12">
-            <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm sm:tracking-[0.4em]">Excellence, Refined</p>
-              <h2 className="mt-2 font-heading text-3xl md:mt-3 md:text-6xl">Crafted for Those Who Demand Excellence</h2>
-              <a href="/collections" className="mt-5 inline-flex rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 sm:mt-8 sm:px-6 sm:py-3 sm:text-base">
-                Explore All Watches
-              </a>
+    <section className="mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-14">
+      <div className="overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-sm">
+        <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
+          <div className="relative min-h-[240px] bg-black sm:min-h-[320px] lg:min-h-[420px]">
+            <Image
+              src="/ui-image/ui.webp"
+              alt="Luxury watch editorial banner"
+              fill
+              priority={false}
+              sizes="(max-width: 1024px) 100vw, 55vw"
+              className="object-cover object-center opacity-90"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/20 to-transparent" />
+          </div>
+
+          <div className="flex items-center bg-white px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+            <div className="max-w-xl">
+              <p className="text-xs uppercase tracking-[0.35em] text-black/45 sm:text-sm sm:tracking-[0.4em]">Excellence, Refined</p>
+              <h2 className="mt-3 font-heading text-3xl leading-tight text-black sm:mt-4 sm:text-4xl lg:text-5xl">
+                Crafted for Those Who Demand Excellence
+              </h2>
+              <p className="mt-3 max-w-lg text-sm leading-6 text-black/60 sm:mt-4 sm:text-base">
+                A minimal showcase for collectors who want a clean, premium browsing experience without visual noise.
+              </p>
+              <div className="mt-5 sm:mt-7">
+                <Link
+                  href="/collections"
+                  className="inline-flex rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/90"
+                >
+                  Explore All Watches
+                </Link>
+              </div>
             </div>
           </div>
         </div>

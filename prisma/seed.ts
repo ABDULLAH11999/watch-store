@@ -26,14 +26,10 @@ const products: SeedProduct[] = [
 ];
 
 const testimonials = [
-  { customerName: "Ali Hassan", rating: 5, reviewText: "The watch was delivered exactly as shown. Packaging, service, and communication were all first class.", imageUrl: "/testimonials/ali-hassan.jpg", sortOrder: 1 },
-  { customerName: "Fatima Khan", rating: 5, reviewText: "Anmol Gadgets feels like a true luxury boutique. The team was helpful and very professional.", imageUrl: "/testimonials/fatima-khan.jpg", sortOrder: 2 },
-  { customerName: "Usman Malik", rating: 5, reviewText: "Authentic pieces, quick responses, and premium presentation. Highly recommended.", imageUrl: "/testimonials/usman-malik.jpg", sortOrder: 3 },
-  { customerName: "Zara Ahmed", rating: 5, reviewText: "The site looks elegant and the collection feels very premium on mobile.", imageUrl: "/testimonials/zara-ahmed.jpg", sortOrder: 4 },
-  { customerName: "Ahmed Raza", rating: 5, reviewText: "Excellent trust building with clear photos, COD support, and fast follow-up.", imageUrl: "/testimonials/ahmed-raza.jpg", sortOrder: 5 },
-  { customerName: "Sana Malik", rating: 5, reviewText: "A very premium browsing experience. Loved the watch cards and luxury feel.", imageUrl: "/testimonials/sana-malik.jpg", sortOrder: 6 },
-  { customerName: "Omar Sheikh", rating: 5, reviewText: "The luxury feel is consistent across every page and the site feels very trustworthy.", imageUrl: "/testimonials/omar-sheikh.jpg", sortOrder: 7 },
-  { customerName: "Ayesha Butt", rating: 5, reviewText: "Beautiful visuals, polished layout, and a premium experience on mobile.", imageUrl: "/testimonials/ayesha-butt.jpg", sortOrder: 8 }
+  { customerName: "Ali Hassan", rating: 5, reviewText: "The watch was delivered exactly as shown. Packaging, service, and communication were all first class.", imageUrl: "/testimonials/1.webp", sortOrder: 1 },
+  { customerName: "Fatima Khan", rating: 5, reviewText: "Anmol Gadgets feels like a true luxury boutique. The team was helpful and very professional.", imageUrl: "/testimonials/2.webp", sortOrder: 2 },
+  { customerName: "Usman Malik", rating: 5, reviewText: "Authentic pieces, quick responses, and premium presentation. Highly recommended.", imageUrl: "/testimonials/3.webp", sortOrder: 3 },
+  { customerName: "Zara Ahmed", rating: 5, reviewText: "The site looks elegant and the collection feels very premium on mobile.", imageUrl: "/testimonials/4.webp", sortOrder: 4 }
 ];
 
 async function main() {

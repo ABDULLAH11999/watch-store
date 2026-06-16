@@ -73,16 +73,21 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
 
   return (
     <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
-      <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
-          <h2 className="font-heading text-3xl">{selected ? "Edit Testimonial" : "Add Testimonial"}</h2>
+      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <div className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-5">
+          <h2 className="font-heading text-2xl sm:text-3xl">{selected ? "Edit Testimonial" : "Add Testimonial"}</h2>
           <div className="mt-4 grid gap-3">
             <input value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} placeholder="Customer Name" className="rounded-2xl border border-black/10 px-4 py-3" />
             <input value={form.customerImage} onChange={(e) => setForm({ ...form, customerImage: e.target.value })} placeholder="Image URL" className="rounded-2xl border border-black/10 px-4 py-3" />
-            <input type="file" accept="image/*" onChange={async (e) => {
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
               const urls = await uploadFiles(e.target.files);
               if (urls[0]) setForm({ ...form, customerImage: urls[0] });
-            }} className="rounded-2xl border border-black/10 px-4 py-3" />
+              }}
+              className="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm"
+            />
             <select value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} className="rounded-2xl border border-black/10 px-4 py-3">
               {[1, 2, 3, 4, 5].map((rating) => <option key={rating} value={rating}>{rating} Stars</option>)}
             </select>
@@ -98,9 +103,9 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
           </div>
         </div>
 
-        <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="font-heading text-3xl">Testimonials</h2>
+        <div className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <h2 className="font-heading text-2xl sm:text-3xl">Testimonials</h2>
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search testimonials" className="w-full rounded-2xl border border-black/10 px-4 py-3 md:max-w-xs" />
           </div>
 
@@ -108,20 +113,20 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
             {pagedTestimonials.map((item) => (
               <div key={item.id} className="rounded-3xl border border-black/10 p-4">
                 <div className="flex items-start gap-3">
-                  <div className="h-16 w-16 overflow-hidden rounded-2xl border border-black/10 bg-black/5">
+                  <div className="h-14 w-14 overflow-hidden rounded-2xl border border-black/10 bg-black/5 sm:h-16 sm:w-16">
                     <Image src={item.customerImage} alt={item.customerName} width={64} height={64} className="h-full w-full object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold">{item.customerName}</p>
-                    <p className="mt-1 text-sm text-black/55 line-clamp-2">{item.reviewText}</p>
+                    <p className="text-sm font-semibold sm:text-base">{item.customerName}</p>
+                    <p className="mt-1 text-sm leading-6 text-black/55 line-clamp-2">{item.reviewText}</p>
                     <p className="mt-2 text-xs text-black/45">Rating {item.rating} / 5</p>
                   </div>
                 </div>
-                <div className="mt-4 flex gap-2">
-                  <button onClick={() => setSelected(item)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button onClick={() => setSelected(item)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
                     Edit
                   </button>
-                  <button onClick={() => remove(item.id)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                  <button onClick={() => remove(item.id)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
                     Delete
                   </button>
                 </div>
@@ -175,7 +180,7 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-3 text-sm">
+          <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
             <p className="text-black/50">
               Showing {filteredTestimonials.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredTestimonials.length)} of {filteredTestimonials.length}
             </p>

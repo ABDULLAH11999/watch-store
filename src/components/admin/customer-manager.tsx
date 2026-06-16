@@ -72,7 +72,7 @@ export function CustomerManager({ initialCustomers }: { initialCustomers: Custom
     <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
       <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
-          <h2 className="font-heading text-3xl">{selected ? "Edit Customer" : "Add Customer"}</h2>
+          <h2 className="font-heading text-2xl sm:text-3xl">{selected ? "Edit Customer" : "Add Customer"}</h2>
           <div className="mt-4 grid gap-3">
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="rounded-2xl border border-black/10 px-4 py-3" />
             <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Phone" className="rounded-2xl border border-black/10 px-4 py-3" />
@@ -87,7 +87,7 @@ export function CustomerManager({ initialCustomers }: { initialCustomers: Custom
 
         <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
           <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="font-heading text-3xl">Customers</h2>
+            <h2 className="font-heading text-2xl sm:text-3xl">Customers</h2>
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customers" className="w-full rounded-2xl border border-black/10 px-4 py-3 md:max-w-xs" />
           </div>
 
@@ -102,14 +102,14 @@ export function CustomerManager({ initialCustomers }: { initialCustomers: Custom
                     <p className="text-xs text-black/45">{customer.email || "—"}</p>
                   </div>
                 </div>
-                <div className="mt-4 flex gap-2">
-                  <Link href={`/admin/customers/${customer.id}`} className="flex-1 rounded-2xl border border-black px-3 py-3 text-center text-sm font-semibold">
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <Link href={`/admin/customers/${customer.id}`} className="rounded-2xl border border-black px-3 py-3 text-center text-sm font-semibold">
                     View
                   </Link>
-                  <button onClick={() => setSelected(customer)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                  <button onClick={() => setSelected(customer)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
                     Edit
                   </button>
-                  <button onClick={() => remove(customer.id)} className="flex-1 rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                  <button onClick={() => remove(customer.id)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
                     Delete
                   </button>
                 </div>
@@ -156,7 +156,7 @@ export function CustomerManager({ initialCustomers }: { initialCustomers: Custom
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-3 text-sm">
+          <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
             <p className="text-black/50">
               Showing {filteredCustomers.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredCustomers.length)} of {filteredCustomers.length}
             </p>

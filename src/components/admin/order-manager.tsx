@@ -59,11 +59,11 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-[0.35em] text-black/45">Sales</p>
-          <h2 className="mt-2 font-heading text-3xl">Orders</h2>
+          <h2 className="mt-2 font-heading text-2xl sm:text-3xl">Orders</h2>
         </div>
-        <div className="flex flex-col gap-3 md:flex-row">
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search orders" className="rounded-2xl border border-black/10 px-4 py-3 md:w-72" />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-2xl border border-black/10 px-4 py-3 md:w-48">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search orders" className="w-full rounded-2xl border border-black/10 px-4 py-3 sm:min-w-[220px] md:w-72" />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full rounded-2xl border border-black/10 px-4 py-3 sm:min-w-[180px] md:w-48">
             <option value="ALL">All Status</option>
             {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
               <option key={status} value={status}>
@@ -71,7 +71,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
               </option>
             ))}
           </select>
-          <a href="/api/admin/orders/export" className="rounded-2xl bg-black px-4 py-3 text-center text-sm font-semibold text-white">
+          <a href="/api/admin/orders/export" className="w-full rounded-2xl bg-black px-4 py-3 text-center text-sm font-semibold text-white sm:w-auto">
             Export CSV
           </a>
         </div>
