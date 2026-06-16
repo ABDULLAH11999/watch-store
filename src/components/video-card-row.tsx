@@ -1,0 +1,49 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { demoProducts } from "@/lib/demo-data";
+
+const videos = [
+  {
+    name: "Hublot Signature",
+    src: "/videos/watch-card-1.mp4",
+    poster: demoProducts[1].images[0]
+  },
+  {
+    name: "Patek Philippe Elegance",
+    src: "/videos/watch-card-2.mp4",
+    poster: demoProducts[4].images[0]
+  },
+  {
+    name: "Swiss Luxury Craft",
+    src: "/videos/hublot-banner.mp4",
+    poster: demoProducts[5].images[0]
+  }
+];
+
+export function VideoCardRow() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-8 sm:py-10 lg:px-8 lg:py-16">
+      <div className="grid gap-4 md:grid-cols-3 md:gap-6">
+        {videos.map((video, index) => (
+          <motion.div
+            key={video.name}
+            initial={{ y: 40, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.12 }}
+            className="group relative overflow-hidden rounded-3xl border border-black/10 bg-black shadow-luxe"
+          >
+            <video src={video.src} poster={video.poster} autoPlay muted loop playsInline preload="metadata" className="h-[320px] w-full object-cover opacity-85 sm:h-[360px] md:h-[420px]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-4 text-white sm:p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-gold sm:text-sm sm:tracking-[0.35em]">Anmol Gadgets</p>
+              <h3 className="mt-1 font-heading text-xl sm:mt-2 sm:text-2xl">{video.name}</h3>
+            </div>
+            <div className="absolute inset-0 rounded-3xl border border-transparent transition group-hover:border-gold" />
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
