@@ -18,7 +18,7 @@ const videos = [
     brand: "Patek Philippe"
   },
   {
-    name: "Swiss Luxury Craft",
+    name: "Rolex Oyster Perpetual",
     src: "/videos/watch-card-2.mp4",
     poster: demoProducts[5].images[0],
     brand: "Rolex"
