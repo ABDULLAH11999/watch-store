@@ -2,14 +2,22 @@
 
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { status } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+  const callbackUrl = useMemo(() => searchParams.get("callbackUrl") || "/admin", [searchParams]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace(callbackUrl);
+    }
+  }, [callbackUrl, router, status]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -18,6 +26,7 @@ export default function AdminLoginPage() {
     const formData = new FormData(event.currentTarget);
     const result = await signIn("credentials", {
       redirect: false,
+      callbackUrl,
       email: String(formData.get("email") || ""),
       password: String(formData.get("password") || "")
     });
@@ -26,7 +35,7 @@ export default function AdminLoginPage() {
       setError("Invalid credentials. Please try again.");
       return;
     }
-    router.push(callbackUrl);
+    window.location.assign(result?.url || callbackUrl);
   }
 
   return (

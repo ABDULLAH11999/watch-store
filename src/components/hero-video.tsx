@@ -18,7 +18,7 @@ export function HeroVideo() {
           <p className="mb-2 text-[10px] uppercase tracking-[0.35em] text-gold sm:mb-3 sm:text-xs md:mb-4 md:text-sm md:tracking-[0.5em]"></p>
           <h1 className="font-heading text-[2.15rem] leading-[1.02] text-gold sm:text-4xl md:text-7xl">Anmol Gadgets</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-gold/80 sm:mt-4 md:mt-6 md:text-2xl">
-            Shop on Budget.
+            Shop on a Budget.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5 sm:mt-6 md:mt-10 md:gap-4">
             <a href="/collections" className="rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 md:px-6 md:py-3 md:text-base">
