@@ -40,16 +40,16 @@ export function DbBackupPanel() {
     <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
       <h2 className="font-heading text-3xl">Postgres Backup</h2>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-black/60">
-        This downloads a full SQL backup of the connected PostgreSQL database using `pg_dump`.
-        Make sure the database URL is configured and the Postgres client tools are installed on the machine running the app.
+        This downloads a full JSON backup of the site data, including products, orders, customers, testimonials, settings, email logs, admin users, and sequence data.
+        It works directly from the app without requiring `pg_dump`.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
       <button onClick={downloadBackup} disabled={loading} className="rounded-2xl bg-black px-5 py-3 font-semibold text-white disabled:opacity-60">
-        {loading ? "Preparing backup..." : "Download Database Backup"}
+        {loading ? "Preparing backup..." : "Backup DB"}
       </button>
-        <a href="/api/admin/backup-db" className="rounded-2xl border border-black/10 px-5 py-3 font-semibold">
-          Direct Download
-        </a>
+      <a href="/api/admin/backup-db" className="rounded-2xl border border-black/10 px-5 py-3 font-semibold">
+        Direct Download
+      </a>
       </div>
       {lastError && (
         <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

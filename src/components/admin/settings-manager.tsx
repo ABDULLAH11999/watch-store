@@ -42,6 +42,33 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
     safeJsonParse(initialSettings.businessInfo, defaultBusinessInfo)
   );
   const [saving, setSaving] = useState(false);
+  const [backingUp, setBackingUp] = useState(false);
+
+  async function downloadBackup() {
+    setBackingUp(true);
+    const response = await fetch("/api/admin/backup-db");
+    setBackingUp(false);
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      toast.error(data.error || "Unable to download backup");
+      return;
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get("content-disposition") || "";
+    const match = disposition.match(/filename="([^"]+)"/i);
+    const filename = match?.[1] || "anmol-gadgets-backup.json";
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.URL.revokeObjectURL(url);
+    toast.success("Backup download started");
+  }
 
   async function save() {
     setSaving(true);
@@ -139,6 +166,25 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
           </div>
         </section>
       </div>
+
+      <section className="rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-6">
+        <h2 className="font-heading text-xl sm:text-2xl">Database Backup</h2>
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-black/50">
+          Download a full backup of all site data including products, orders, customers, testimonials, settings, email logs, admin users, and sequence data.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <button
+            onClick={downloadBackup}
+            disabled={backingUp}
+            className="rounded-2xl bg-black px-6 py-3 font-semibold text-white disabled:opacity-60"
+          >
+            {backingUp ? "Preparing Backup..." : "Backup DB"}
+          </button>
+          <a href="/admin/backup-db" className="rounded-2xl border border-black/10 px-6 py-3 font-semibold">
+            Open Backup Page
+          </a>
+        </div>
+      </section>
 
       <div className="flex justify-stretch sm:justify-end">
         <button onClick={save} disabled={saving} className="rounded-2xl bg-black px-6 py-3 font-semibold text-white disabled:opacity-60">

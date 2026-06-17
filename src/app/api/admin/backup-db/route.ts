@@ -1,58 +1,18 @@
 import { NextResponse } from "next/server";
-import { spawn } from "child_process";
-import { promisify } from "util";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-function parseDatabaseUrl(databaseUrl: string) {
-  const url = new URL(databaseUrl);
-  return {
-    host: url.hostname,
-    port: url.port || "5432",
-    database: url.pathname.replace("/", ""),
-    user: decodeURIComponent(url.username),
-    password: decodeURIComponent(url.password),
-    sslmode: url.searchParams.get("sslmode") || "require"
-  };
-}
-
-async function runPgDump(databaseUrl: string) {
-  return await new Promise<Buffer>((resolve, reject) => {
-    const args = [
-      "--clean",
-      "--if-exists",
-      "--no-owner",
-      "--no-privileges",
-      "--format=plain",
-      databaseUrl
-    ];
-
-    const child = spawn("pg_dump", args, {
-      env: {
-        ...process.env,
-        PGPASSWORD: parseDatabaseUrl(databaseUrl).password
-      },
-      shell: true
-    });
-
-    const chunks: Buffer[] = [];
-    let stderr = "";
-
-    child.stdout.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk.toString();
-    });
-
-    child.on("error", reject);
-    child.on("close", (code) => {
-      if (code !== 0) {
-        reject(new Error(stderr || `pg_dump failed with exit code ${code}`));
-        return;
-      }
-      resolve(Buffer.concat(chunks));
-    });
-  });
+function serializeDates(value: unknown): unknown {
+  if (value instanceof Date) return value.toISOString();
+  if (Array.isArray(value)) return value.map(serializeDates);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, current]) => [key, serializeDates(current)])
+    );
+  }
+  return value;
 }
 
 export async function GET() {
@@ -61,23 +21,39 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    return NextResponse.json({ error: "DATABASE_URL is not configured" }, { status: 400 });
-  }
+  const [customers, products, orders, testimonials, siteSettings, emailLogs, adminUsers, sequences] = await Promise.all([
+    prisma.customer.findMany({ orderBy: { createdAt: "asc" }, include: { orders: true } }),
+    prisma.product.findMany({ orderBy: { createdAt: "asc" } }),
+    prisma.order.findMany({ orderBy: { createdAt: "asc" }, include: { customer: true } }),
+    prisma.testimonial.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.siteSettings.findMany({ orderBy: { key: "asc" } }),
+    prisma.emailLog.findMany({ orderBy: { sentAt: "asc" } }),
+    prisma.adminUser.findMany({ orderBy: { createdAt: "asc" } }),
+    prisma.sequence.findMany({ orderBy: { id: "asc" } })
+  ]);
 
-  try {
-    const dump = await runPgDump(databaseUrl);
-    const filename = `anmol-gadgets-backup-${new Date().toISOString().replace(/[:.]/g, "-")}.sql`;
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    version: "1.0",
+    tables: {
+      customers: serializeDates(customers),
+      products: serializeDates(products),
+      orders: serializeDates(orders),
+      testimonials: serializeDates(testimonials),
+      siteSettings: serializeDates(siteSettings),
+      emailLogs: serializeDates(emailLogs),
+      adminUsers: serializeDates(adminUsers),
+      sequences: serializeDates(sequences)
+    }
+  };
 
-    return new NextResponse(new Blob([dump.toString("utf-8")]), {
-      headers: {
-        "Content-Type": "application/sql",
-        "Content-Disposition": `attachment; filename="${filename}"`
-      }
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to export database";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  const filename = `anmol-gadgets-backup-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+  const json = JSON.stringify(backup, null, 2);
+
+  return new NextResponse(json, {
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"`
+    }
+  });
 }
