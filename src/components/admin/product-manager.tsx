@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { useMediaUploader } from "@/components/media-uploader";
 import { formatPKR } from "@/lib/utils";
-import { normalizeMediaUrl } from "@/lib/media";
+import { MediaImage } from "@/components/media-image";
 
 type Product = {
   id: string;
@@ -178,7 +177,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {form.images.map((image) => (
               <div key={image} className="relative overflow-hidden rounded-2xl border">
-                <Image src={image} alt="uploaded" width={200} height={200} className="h-24 w-full object-cover" />
+                <MediaImage src={image} alt="uploaded" width={200} height={200} className="h-24 w-full object-cover" />
                 <button
                   type="button"
                   onClick={() => removeImage(image)}
@@ -225,7 +224,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
                       <div className="flex items-center gap-3">
                         <div className="h-12 w-12 overflow-hidden rounded-2xl bg-black/5">
                           {product.images?.[0] ? (
-                            <Image src={normalizeMediaUrl(product.images[0])} alt={product.name} width={48} height={48} className="h-full w-full object-cover" />
+                            <MediaImage src={product.images[0]} alt={product.name} width={48} height={48} className="h-full w-full object-cover" />
                           ) : null}
                         </div>
                         <div>

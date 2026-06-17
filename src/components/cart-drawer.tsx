@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Minus, Plus, X } from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { formatPKR } from "@/lib/utils";
+import { MediaImage } from "@/components/media-image";
 
 export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
@@ -25,7 +25,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
           ) : (
             items.map((item) => (
               <div key={item.productId} className="flex gap-3 rounded-3xl border border-black/10 p-3">
-                <Image src={item.image} alt={item.name} width={88} height={88} className="h-20 w-20 rounded-2xl object-cover" />
+                <MediaImage src={item.image} alt={item.name} width={88} height={88} className="h-20 w-20 rounded-2xl object-cover" />
                 <div className="flex-1">
                   <h3 className="font-medium">{item.name}</h3>
                   <p className="text-xs text-black/50">{item.brand}</p>

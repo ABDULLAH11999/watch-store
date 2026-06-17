@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Play } from "lucide-react";
-import { normalizeMediaUrl } from "@/lib/media";
+import { MediaImage } from "@/components/media-image";
 
 export function ProductGallery({ images, videoUrl, name }: { images: string[]; videoUrl?: string | null; name: string }) {
   const [active, setActive] = useState(0);
@@ -15,8 +14,8 @@ export function ProductGallery({ images, videoUrl, name }: { images: string[]; v
       <div className="overflow-hidden rounded-3xl border border-black/10 bg-white">
         {active === 0 ? (
           <div className="relative aspect-square overflow-hidden">
-            <Image
-              src={normalizeMediaUrl(images[activeImage] || images[0])}
+            <MediaImage
+              src={images[activeImage] || images[0]}
               alt={name}
               fill
               className="object-cover transition duration-500 hover:scale-110"
@@ -42,7 +41,7 @@ export function ProductGallery({ images, videoUrl, name }: { images: string[]; v
       <div className="grid grid-cols-4 gap-3">
         {images.map((image, index) => (
           <button key={image} onClick={() => { setActive(0); setActiveImage(index); }} className="overflow-hidden rounded-2xl border border-black/10">
-            <Image src={normalizeMediaUrl(image)} alt={`${name} thumbnail ${index + 1}`} width={150} height={150} className="aspect-square w-full object-cover" />
+            <MediaImage src={image} alt={`${name} thumbnail ${index + 1}`} width={150} height={150} className="aspect-square w-full object-cover" />
           </button>
         ))}
       </div>

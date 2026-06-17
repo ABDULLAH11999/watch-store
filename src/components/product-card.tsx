@@ -1,10 +1,10 @@
  "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { formatPKR } from "@/lib/utils";
 import { ShoppingCart } from "lucide-react";
 import { normalizeMediaUrl } from "@/lib/media";
+import { MediaImage } from "@/components/media-image";
 
 export function ProductCard({
   product,
@@ -28,7 +28,7 @@ export function ProductCard({
     <div className="group overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-luxe">
       <Link href={`/product/${product.slug}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-zinc-100">
-          <Image
+          <MediaImage
             src={image}
             alt={product.name}
             fill

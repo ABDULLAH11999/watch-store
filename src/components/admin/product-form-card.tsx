@@ -2,12 +2,11 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import toast from "react-hot-toast";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { useMediaUploader } from "@/components/media-uploader";
 import { toSlug } from "@/lib/utils";
-import { normalizeMediaUrl } from "@/lib/media";
+import { MediaImage } from "@/components/media-image";
 
 type ProductInput = {
   id?: string;
@@ -211,7 +210,7 @@ export function ProductFormCard({
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {form.images.map((image) => (
                   <div key={image} className="relative overflow-hidden rounded-2xl border">
-                    <Image src={normalizeMediaUrl(image)} alt="uploaded" width={200} height={200} className="h-24 w-full object-cover" />
+                    <MediaImage src={image} alt="uploaded" width={200} height={200} className="h-24 w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeImage(image)}

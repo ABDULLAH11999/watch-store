@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatPKR } from "@/lib/utils";
-import { normalizeMediaUrl } from "@/lib/media";
+import { MediaImage } from "@/components/media-image";
 
 type Product = {
   id: string;
@@ -75,7 +74,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
           <div key={product.id} className="rounded-3xl border border-black/10 p-4">
             <div className="flex gap-3">
               <div className="h-18 w-18 shrink-0 overflow-hidden rounded-2xl border border-black/10 bg-black/5 sm:h-20 sm:w-20">
-                {product.images?.[0] ? <Image src={normalizeMediaUrl(product.images[0])} alt={product.name} width={80} height={80} className="h-full w-full object-cover" /> : null}
+                {product.images?.[0] ? <MediaImage src={product.images[0]} alt={product.name} width={80} height={80} className="h-full w-full object-cover" /> : null}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">{product.name}</p>
@@ -120,7 +119,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 overflow-hidden rounded-2xl border border-black/10 bg-black/5">
                         {product.images?.[0] ? (
-                          <Image src={normalizeMediaUrl(product.images[0])} alt={product.name} width={48} height={48} className="h-full w-full object-cover" />
+                          <MediaImage src={product.images[0]} alt={product.name} width={48} height={48} className="h-full w-full object-cover" />
                         ) : null}
                       </div>
                       <div>

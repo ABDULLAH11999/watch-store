@@ -1,10 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import { useState } from "react";
 import { Star, X } from "lucide-react";
-import { normalizeMediaUrl } from "@/lib/media";
+import { MediaImage } from "@/components/media-image";
 
 export function TestimonialCarousel({
   items
@@ -24,8 +23,8 @@ export function TestimonialCarousel({
             className="group overflow-hidden rounded-[2rem] border border-black/10 bg-white text-left shadow-sm transition hover:shadow-luxe"
           >
             <div className="aspect-square overflow-hidden">
-              <Image
-                src={normalizeMediaUrl(item.customerImage)}
+              <MediaImage
+                src={item.customerImage}
                 alt={item.customerName}
                 width={600}
                 height={600}
@@ -68,7 +67,7 @@ export function TestimonialCarousel({
               </button>
               <div className="grid md:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative aspect-square bg-zinc-100">
-                  <Image src={normalizeMediaUrl(active.customerImage)} alt={active.customerName} fill className="object-cover" />
+                  <MediaImage src={active.customerImage} alt={active.customerName} fill className="object-cover" />
                 </div>
                 <div className="flex flex-col justify-center p-8">
                   <h3 className="font-heading text-4xl text-ink">{active.customerName}</h3>
