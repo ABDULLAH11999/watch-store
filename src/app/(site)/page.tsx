@@ -1,12 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { HeroVideo } from "@/components/hero-video";
+import { BrandShowcase } from "@/components/brand-showcase";
 import { VideoCardRow } from "@/components/video-card-row";
 import { BrandStrip } from "@/components/brand-strip";
 import { FeaturedProductsGrid } from "@/components/featured-products-grid";
 import { CinematicBanner } from "@/components/cinematic-banner";
 import { NewsletterStrip } from "@/components/newsletter-strip";
 import { TestimonialCarousel } from "@/components/swiper-testimonials";
-import { ProductCard } from "@/components/product-card";
+import { WhyChooseSection } from "@/components/why-choose-section";
+import { FaqSection } from "@/components/faq-section";
 import { demoProducts, demoTestimonials } from "@/lib/demo-data";
 
 export const dynamic = "force-dynamic";
@@ -84,10 +86,14 @@ export default async function HomePage() {
         </div>
 
         <div className="order-2">
+          <BrandShowcase />
+        </div>
+
+        <div className="order-3">
           <BrandStrip />
         </div>
 
-        <section className="order-3 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-16">
+        <section className="order-4 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-16">
           <div className="mb-4 sm:mb-8">
             <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm sm:tracking-[0.4em]">Featured Products</p>
             <h2 className="mt-1 font-heading text-2xl sm:mt-2 sm:text-4xl">Luxury Watches</h2>
@@ -95,15 +101,19 @@ export default async function HomePage() {
           <FeaturedProductsGrid products={featured} />
         </section>
 
-        <div className="order-4">
+        <div className="order-5">
           <VideoCardRow />
         </div>
 
-        <div className="order-5">
+        <div className="order-6">
+          <WhyChooseSection />
+        </div>
+
+        <div className="order-7">
           <CinematicBanner />
         </div>
 
-        <section className="order-6 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-16">
+        <section className="order-8 mx-auto max-w-7xl px-4 py-6 sm:py-8 lg:px-8 lg:py-16">
           <div className="mb-4 sm:mb-8">
             <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm sm:tracking-[0.4em]">Testimonials</p>
             <h2 className="mt-1 font-heading text-2xl sm:mt-2 sm:text-4xl">What Our Customers Say</h2>
@@ -111,7 +121,11 @@ export default async function HomePage() {
           <TestimonialCarousel items={testimonials} />
         </section>
 
-        <div className="order-7">
+        <div className="order-9">
+          <FaqSection />
+        </div>
+
+        <div className="order-10">
           <NewsletterStrip />
         </div>
       </div>

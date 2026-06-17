@@ -11,6 +11,7 @@ export default async function CollectionsPage({
 }) {
   const page = Math.max(1, Number(searchParams?.page || 1));
   const search = String(searchParams?.search || "");
+  const brand = String(searchParams?.brand || "");
   const status = String(searchParams?.status || "");
   const columns = Math.min(4, Math.max(2, Number(searchParams?.columns || 4)));
   const take = 12;
@@ -23,6 +24,11 @@ export default async function CollectionsPage({
               { name: { contains: search, mode: "insensitive" } },
               { brand: { contains: search, mode: "insensitive" } }
             ]
+          }
+        : {},
+      brand
+        ? {
+            brand: { contains: brand, mode: "insensitive" }
           }
         : {},
       status === "sale"
@@ -51,8 +57,9 @@ export default async function CollectionsPage({
         !search ||
         product.name.toLowerCase().includes(search.toLowerCase()) ||
         product.brand.toLowerCase().includes(search.toLowerCase());
+      const matchesBrand = !brand || product.brand.toLowerCase().includes(brand.toLowerCase());
       const matchesStatus = status === "sale" ? Boolean(product.salePrice) : status === "stock" ? true : true;
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesBrand && matchesStatus;
     });
     products = filtered.slice((page - 1) * take, page * take);
     total = filtered.length;
@@ -80,6 +87,7 @@ export default async function CollectionsPage({
                   href={`/collections?${new URLSearchParams({
                     page: "1",
                     search,
+                    brand,
                     status,
                     columns: String(item.value)
                   }).toString()}`}
@@ -102,6 +110,7 @@ export default async function CollectionsPage({
             <option value="sale">Sale</option>
             <option value="stock">In Stock</option>
           </select>
+          <input type="hidden" name="brand" value={brand} />
           <input type="hidden" name="columns" value={String(columns)} />
           <button className="rounded-2xl bg-ink px-4 py-3 font-semibold text-white lg:col-span-1">Apply Filters</button>
         </div>
@@ -135,6 +144,7 @@ export default async function CollectionsPage({
             href={`/collections?${new URLSearchParams({
               page: String(index + 1),
               search,
+              brand,
               status,
               columns: String(columns)
             }).toString()}`}
