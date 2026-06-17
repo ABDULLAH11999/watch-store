@@ -41,9 +41,13 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
   }, [selected]);
 
   async function save() {
+    if (!form.customerImage) {
+      toast.error("Please upload a testimonial image");
+      return;
+    }
     const payload = {
       ...form,
-      customerImage: form.customerImage || "/testimonials/1.webp",
+      customerImage: form.customerImage,
       rating: Number(form.rating),
       sortOrder: Number(form.sortOrder)
     };

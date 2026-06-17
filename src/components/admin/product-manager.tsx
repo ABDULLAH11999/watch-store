@@ -66,12 +66,16 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
   }, [selected]);
 
   async function submit() {
+    if (!form.images.length) {
+      toast.error("Please upload at least one gallery image");
+      return;
+    }
     const payload = {
       ...form,
       price: Number(form.price),
       salePrice: form.salePrice ? Number(form.salePrice) : null,
       saleEndsAt: form.saleEndsAt ? new Date(form.saleEndsAt).toISOString() : null,
-      images: form.images.length ? form.images : ["/ui-image/ui.webp"],
+      images: form.images,
       videoUrl: form.videoUrl || null,
       stock: Number(form.stock),
       status: form.status

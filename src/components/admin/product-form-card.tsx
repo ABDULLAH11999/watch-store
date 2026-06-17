@@ -60,6 +60,10 @@ export function ProductFormCard({
   }
 
   async function save() {
+    if (!form.images.length) {
+      toast.error("Please upload at least one gallery image");
+      return;
+    }
     setSaving(true);
     const payload = {
       name: form.name,
@@ -68,7 +72,7 @@ export function ProductFormCard({
       price: Number(form.price),
       salePrice: form.salePrice ? Number(form.salePrice) : null,
       saleEndsAt: form.saleEndsAt ? new Date(form.saleEndsAt).toISOString() : null,
-      images: form.images.length ? form.images : ["/ui-image/ui.webp"],
+      images: form.images,
       videoUrl: form.videoUrl || null,
       stock: Number(form.stock),
       status: form.status
