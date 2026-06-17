@@ -1,20 +1,24 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Facebook, Instagram, MessageCircle, Youtube } from "lucide-react";
+import Link from "next/link";
+import { Instagram, MessageCircle } from "lucide-react";
 
 type BusinessInfo = {
   contactPhone?: string;
   contactEmail?: string;
   shopAddress?: string;
+  whatsappNumber?: string;
+  instagramLink?: string;
 };
 
 export function SiteFooter() {
   const [business, setBusiness] = useState<BusinessInfo>({
     contactPhone: "",
     contactEmail: "",
-    shopAddress: ""
+    shopAddress: "",
+    whatsappNumber: "",
+    instagramLink: ""
   });
 
   useEffect(() => {
@@ -54,16 +58,19 @@ export function SiteFooter() {
         <div>
           <h3 className="mb-4 font-heading text-xl text-gold">Social</h3>
           <div className="flex gap-3 text-white/75">
-            <Link href="#" aria-label="Instagram">
+            <Link href={business.instagramLink || "#"} aria-label="Instagram" target={business.instagramLink ? "_blank" : undefined} rel={business.instagramLink ? "noreferrer" : undefined}>
               <Instagram />
             </Link>
-            <Link href="#" aria-label="Facebook">
-              <Facebook />
-            </Link>
-            <Link href="#" aria-label="YouTube">
-              <Youtube />
-            </Link>
-            <Link href="#" aria-label="WhatsApp">
+            <Link
+              href={
+                business.whatsappNumber
+                  ? `https://wa.me/${String(business.whatsappNumber).replace(/\D/g, "")}`
+                  : "#"
+              }
+              aria-label="WhatsApp"
+              target={business.whatsappNumber ? "_blank" : undefined}
+              rel={business.whatsappNumber ? "noreferrer" : undefined}
+            >
               <MessageCircle />
             </Link>
           </div>

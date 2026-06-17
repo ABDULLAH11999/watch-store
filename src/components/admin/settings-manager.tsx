@@ -17,6 +17,7 @@ type BusinessInfo = {
   contactEmail: string;
   shopAddress: string;
   whatsappNumber: string;
+  instagramLink: string;
 };
 
 const defaultEmailSettings: EmailSettings = {
@@ -29,7 +30,8 @@ const defaultBusinessInfo: BusinessInfo = {
   contactPhone: "",
   contactEmail: "",
   shopAddress: "",
-  whatsappNumber: ""
+  whatsappNumber: "",
+  instagramLink: ""
 };
 
 export function SettingsManager({ initialSettings }: { initialSettings: SettingsMap }) {
@@ -103,6 +105,15 @@ export function SettingsManager({ initialSettings }: { initialSettings: Settings
               <input
                 value={businessInfo.whatsappNumber}
                 onChange={(e) => setBusinessInfo({ ...businessInfo, whatsappNumber: e.target.value })}
+                className="rounded-2xl border px-4 py-3"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-black/60">Instagram Link</span>
+              <input
+                value={businessInfo.instagramLink}
+                onChange={(e) => setBusinessInfo({ ...businessInfo, instagramLink: e.target.value })}
+                placeholder="https://instagram.com/yourprofile"
                 className="rounded-2xl border px-4 py-3"
               />
             </label>

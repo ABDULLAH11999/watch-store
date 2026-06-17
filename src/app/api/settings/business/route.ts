@@ -8,7 +8,8 @@ export async function GET() {
     contactPhone: "",
     contactEmail: "",
     shopAddress: "",
-    whatsappNumber: ""
+    whatsappNumber: "",
+    instagramLink: ""
   });
   return NextResponse.json(business);
 }
