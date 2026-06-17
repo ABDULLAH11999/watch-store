@@ -44,7 +44,6 @@ export function VideoCardRow() {
               <video src={video.src} poster={video.poster} autoPlay muted loop playsInline preload="metadata" className="h-[320px] w-full object-cover opacity-85 sm:h-[360px] md:h-[420px]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4 text-white sm:p-5">
-                <p className="text-xs uppercase tracking-[0.3em] text-gold sm:text-sm sm:tracking-[0.35em]">Anmol Gadgets</p>
                 <h3 className="mt-1 font-heading text-xl sm:mt-2 sm:text-2xl">{video.name}</h3>
               </div>
               <div className="absolute inset-0 rounded-3xl border border-transparent transition group-hover:border-gold" />
