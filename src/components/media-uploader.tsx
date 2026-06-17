@@ -10,21 +10,27 @@ export function useMediaUploader(folder = "anmol-gadgets") {
     if (!files?.length) return [];
     setUploading(true);
     const urls: string[] = [];
-    for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", folder);
-      const response = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await response.json();
-      if (!response.ok) {
-        toast.error(data.error || "Upload failed");
-        continue;
+
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", folder);
+        const response = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          toast.error(data.error || "Upload failed");
+          continue;
+        }
+        if (data.url) urls.push(data.url);
       }
-      urls.push(data.url);
+      if (urls.length) {
+        toast.success("Upload complete");
+      }
+      return urls;
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
-    toast.success("Upload complete");
-    return urls;
   }
 
   return { uploadFiles, uploading };

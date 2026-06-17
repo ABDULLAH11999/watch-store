@@ -29,7 +29,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status })
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) return toast.error(data.error || "Unable to update order");
     setOrders(orders.map((order) => (order.id === id ? data.item : order)));
     toast.success("Order updated");

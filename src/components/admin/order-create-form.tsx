@@ -47,7 +47,7 @@ export function OrderCreateForm({ products }: { products: Product[] }) {
         items
       })
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     setLoading(false);
     if (!response.ok) return toast.error(data.error || "Unable to create order");
     toast.success("Order created");

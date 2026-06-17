@@ -8,14 +8,19 @@ export async function POST(request: Request) {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
 
-  const formData = await request.formData();
-  const file = formData.get("file");
-  const folder = String(formData.get("folder") || "anmol-gadgets");
+  try {
+    const formData = await request.formData();
+    const file = formData.get("file");
+    const folder = String(formData.get("folder") || "anmol-gadgets");
 
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "Missing file" }, { status: 400 });
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "Missing file" }, { status: 400 });
+    }
+
+    const result = await uploadToCloudinary(file, folder);
+    return NextResponse.json({ url: result.secure_url, publicId: result.public_id, resourceType: result.resource_type });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Upload failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const result = await uploadToCloudinary(file, folder);
-  return NextResponse.json({ url: result.secure_url, publicId: result.public_id, resourceType: result.resource_type });
 }

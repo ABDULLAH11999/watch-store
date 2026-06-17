@@ -41,13 +41,18 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
   }, [selected]);
 
   async function save() {
-    const payload = { ...form, rating: Number(form.rating), sortOrder: Number(form.sortOrder) };
+    const payload = {
+      ...form,
+      customerImage: form.customerImage || "/testimonials/1.webp",
+      rating: Number(form.rating),
+      sortOrder: Number(form.sortOrder)
+    };
     const response = await fetch(`/api/admin/testimonials${selected ? `/${selected.id}` : ""}`, {
       method: selected ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) return toast.error(data.error || "Unable to save testimonial");
     toast.success("Testimonial saved");
     setTestimonials(selected ? testimonials.map((item) => (item.id === selected.id ? data.item : item)) : [data.item, ...testimonials]);

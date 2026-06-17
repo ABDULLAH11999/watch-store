@@ -71,7 +71,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
       price: Number(form.price),
       salePrice: form.salePrice ? Number(form.salePrice) : null,
       saleEndsAt: form.saleEndsAt ? new Date(form.saleEndsAt).toISOString() : null,
-      images: form.images,
+      images: form.images.length ? form.images : ["/ui-image/ui.webp"],
       videoUrl: form.videoUrl || null,
       stock: Number(form.stock),
       status: form.status
@@ -81,7 +81,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) {
       toast.error(data.error || "Unable to save product");
       return;
