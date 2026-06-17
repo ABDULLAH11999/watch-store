@@ -16,7 +16,7 @@ function hasCloudinaryConfig() {
 function normalizeFolder(folder = "anmol-gadgets") {
   const clean = folder.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
   if (clean.includes("testimonial")) return "testimonials";
-  if (clean.includes("product") || clean.includes("watch")) return "watch";
+  if (clean.includes("product") || clean.includes("watch")) return "watches";
   return clean.split("/").filter(Boolean).pop() || "assets";
 }
 

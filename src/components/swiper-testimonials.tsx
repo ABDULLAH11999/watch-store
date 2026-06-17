@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import { Star, X } from "lucide-react";
+import { normalizeMediaUrl } from "@/lib/media";
 
 export function TestimonialCarousel({
   items
@@ -24,7 +25,7 @@ export function TestimonialCarousel({
           >
             <div className="aspect-square overflow-hidden">
               <Image
-                src={item.customerImage}
+                src={normalizeMediaUrl(item.customerImage)}
                 alt={item.customerName}
                 width={600}
                 height={600}
@@ -67,7 +68,7 @@ export function TestimonialCarousel({
               </button>
               <div className="grid md:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative aspect-square bg-zinc-100">
-                  <Image src={active.customerImage} alt={active.customerName} fill className="object-cover" />
+                  <Image src={normalizeMediaUrl(active.customerImage)} alt={active.customerName} fill className="object-cover" />
                 </div>
                 <div className="flex flex-col justify-center p-8">
                   <h3 className="font-heading text-4xl text-ink">{active.customerName}</h3>

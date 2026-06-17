@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { useMediaUploader } from "@/components/media-uploader";
 import { toSlug } from "@/lib/utils";
+import { normalizeMediaUrl } from "@/lib/media";
 
 type ProductInput = {
   id?: string;
@@ -45,7 +46,7 @@ export function ProductFormCard({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<ProductInput>(initialProduct ?? emptyForm);
-  const { uploadFiles, uploading } = useMediaUploader("anmol-gadgets/products");
+  const { uploadFiles, uploading } = useMediaUploader("anmol-gadgets/watches");
 
   const isEdit = Boolean(initialProduct?.id);
   const slugPreview = useMemo(() => form.slug || toSlug(form.name || "product"), [form.name, form.slug]);
@@ -210,7 +211,7 @@ export function ProductFormCard({
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {form.images.map((image) => (
                   <div key={image} className="relative overflow-hidden rounded-2xl border">
-                    <Image src={image} alt="uploaded" width={200} height={200} className="h-24 w-full object-cover" />
+                    <Image src={normalizeMediaUrl(image)} alt="uploaded" width={200} height={200} className="h-24 w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeImage(image)}

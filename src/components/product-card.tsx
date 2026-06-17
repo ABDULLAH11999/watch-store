@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPKR } from "@/lib/utils";
 import { ShoppingCart } from "lucide-react";
+import { normalizeMediaUrl } from "@/lib/media";
 
 export function ProductCard({
   product,
@@ -20,7 +21,7 @@ export function ProductCard({
   };
   onAddToCart?: () => void;
 }) {
-  const image = product.images?.[0] || "/watches/classic-fusion-titanium.jpg";
+  const image = normalizeMediaUrl(product.images?.[0] || "/watches/classic-fusion-titanium.jpg");
   const salePrice = product.salePrice ? Number(product.salePrice) : null;
   const price = Number(product.price);
   return (

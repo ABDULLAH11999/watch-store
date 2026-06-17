@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { useMediaUploader } from "@/components/media-uploader";
+import { normalizeMediaUrl } from "@/lib/media";
 
 type Testimonial = {
   id: string;
@@ -123,7 +124,7 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
               <div key={item.id} className="rounded-3xl border border-black/10 p-4">
                 <div className="flex items-start gap-3">
                   <div className="h-14 w-14 overflow-hidden rounded-2xl border border-black/10 bg-black/5 sm:h-16 sm:w-16">
-                    <Image src={item.customerImage} alt={item.customerName} width={64} height={64} className="h-full w-full object-cover" />
+                    <Image src={normalizeMediaUrl(item.customerImage)} alt={item.customerName} width={64} height={64} className="h-full w-full object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold sm:text-base">{item.customerName}</p>
@@ -161,7 +162,7 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div className="h-12 w-12 overflow-hidden rounded-2xl border border-black/10 bg-black/5">
-                            <Image src={item.customerImage} alt={item.customerName} width={48} height={48} className="h-full w-full object-cover" />
+                            <Image src={normalizeMediaUrl(item.customerImage)} alt={item.customerName} width={48} height={48} className="h-full w-full object-cover" />
                           </div>
                           <div>
                             <p className="font-medium">{item.customerName}</p>

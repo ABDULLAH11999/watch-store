@@ -7,6 +7,7 @@ import Image from "next/image";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { useMediaUploader } from "@/components/media-uploader";
 import { formatPKR } from "@/lib/utils";
+import { normalizeMediaUrl } from "@/lib/media";
 
 type Product = {
   id: string;
@@ -44,7 +45,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const { uploadFiles, uploading } = useMediaUploader("anmol-gadgets/products");
+  const { uploadFiles, uploading } = useMediaUploader("anmol-gadgets/watches");
 
   useEffect(() => {
     if (!selected) {
@@ -224,7 +225,7 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
                       <div className="flex items-center gap-3">
                         <div className="h-12 w-12 overflow-hidden rounded-2xl bg-black/5">
                           {product.images?.[0] ? (
-                            <Image src={product.images[0]} alt={product.name} width={48} height={48} className="h-full w-full object-cover" />
+                            <Image src={normalizeMediaUrl(product.images[0])} alt={product.name} width={48} height={48} className="h-full w-full object-cover" />
                           ) : null}
                         </div>
                         <div>

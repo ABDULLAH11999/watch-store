@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { demoSocialProof } from "@/lib/demo-data";
+import { normalizeMediaUrl } from "@/lib/media";
 
 type ToastItem = {
   id: number;
@@ -57,7 +58,7 @@ export function SocialProofToast() {
             transition={{ type: "spring", stiffness: 260, damping: 24 }}
             className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-3 shadow-xl"
           >
-            <Image src={item.image} alt={item.product} width={40} height={40} className="h-10 w-10 rounded-xl object-cover" />
+            <Image src={normalizeMediaUrl(item.image)} alt={item.product} width={40} height={40} className="h-10 w-10 rounded-xl object-cover" />
             <div className="text-sm">
               <p className="font-medium text-ink">
                 {item.name} from {item.city} purchased {item.product}
