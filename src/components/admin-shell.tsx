@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
-  Crown,
   LayoutDashboard,
   ListOrdered,
   Package,
@@ -74,8 +74,8 @@ export function AdminShell({
         <aside className="hidden min-h-screen border-r border-black/10 bg-white lg:flex lg:flex-col">
           <div className="border-b border-black/10 px-6 py-5">
             <Link href="/admin" className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white">
-                <Crown className="h-6 w-6" />
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black p-0.5">
+                <Image src="/ui-image/Logo.jpg" alt="Anmol Gadgets logo" width={44} height={44} className="h-full w-full object-contain" priority />
               </span>
               <span>
                 <span className="block font-heading text-xl font-semibold leading-none">Anmol Gadgets</span>
@@ -123,8 +123,8 @@ export function AdminShell({
             <div className="flex items-center justify-between gap-3 px-3 py-3 sm:px-4 lg:px-6 lg:py-4">
               <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                 <Link href="/admin" className="flex items-center gap-3 lg:hidden">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-black text-white">
-                    <Crown className="h-4 w-4" />
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black p-0.5">
+                    <Image src="/ui-image/Logo.jpg" alt="Anmol Gadgets logo" width={36} height={36} className="h-full w-full object-contain" priority />
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate font-heading text-base font-semibold leading-none sm:text-lg">Anmol Gadgets</span>

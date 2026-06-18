@@ -1,9 +1,18 @@
 import { z } from "zod";
 
+function stripHtml(value: string) {
+  return value.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export const productSchema = z.object({
   name: z.string().min(2),
   brand: z.string().min(2),
-  description: z.string().min(10),
+  description: z
+    .string()
+    .min(1)
+    .refine((value) => stripHtml(value).length > 0, {
+      message: "Description must contain text"
+    }),
   price: z.coerce.number().min(0),
   salePrice: z.coerce.number().min(0).optional().nullable(),
   saleEndsAt: z.string().datetime().optional().nullable(),

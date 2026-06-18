@@ -5,19 +5,31 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 
+function normalizeCallbackUrl(value: string | null) {
+  if (!value) return "/admin";
+  if (value.startsWith("/")) return value;
+  try {
+    const parsed = new URL(value);
+    return `${parsed.pathname}${parsed.search}${parsed.hash}` || "/admin";
+  } catch {
+    return "/admin";
+  }
+}
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { status } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const callbackUrl = useMemo(() => searchParams.get("callbackUrl") || "/admin", [searchParams]);
+  const callbackUrl = useMemo(() => searchParams.get("callbackUrl"), [searchParams]);
+  const safeCallbackUrl = useMemo(() => normalizeCallbackUrl(callbackUrl), [callbackUrl]);
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace(callbackUrl);
+      router.replace(safeCallbackUrl);
     }
-  }, [callbackUrl, router, status]);
+  }, [router, safeCallbackUrl, status]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,7 +38,7 @@ export default function AdminLoginPage() {
     const formData = new FormData(event.currentTarget);
     const result = await signIn("credentials", {
       redirect: false,
-      callbackUrl,
+      callbackUrl: safeCallbackUrl,
       email: String(formData.get("email") || ""),
       password: String(formData.get("password") || "")
     });
@@ -35,7 +47,7 @@ export default function AdminLoginPage() {
       setError("Invalid credentials. Please try again.");
       return;
     }
-    window.location.assign(result?.url || callbackUrl);
+    window.location.replace(safeCallbackUrl);
   }
 
   return (

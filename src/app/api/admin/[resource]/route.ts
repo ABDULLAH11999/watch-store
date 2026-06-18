@@ -6,8 +6,14 @@ import { requireAdmin } from "@/lib/admin";
 import { customerSchema, productSchema, testimonialSchema, checkoutSchema } from "@/lib/validators";
 import { toSlug } from "@/lib/utils";
 import { createCheckoutOrder } from "@/lib/order";
+import { ZodError } from "zod";
 
 export const dynamic = "force-dynamic";
+
+function formatZodError(error: unknown) {
+  if (!(error instanceof ZodError)) return null;
+  return error.issues.map((issue) => `${issue.path.join(".") || "form"}: ${issue.message}`).join("; ");
+}
 
 export async function GET(request: Request, context: { params: Promise<{ resource: string }> }) {
   const auth = await requireAdmin();
@@ -111,7 +117,9 @@ export async function POST(request: Request, context: { params: Promise<{ resour
 
   if (resource === "products") {
     const parsed = productSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid product" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid product" }, { status: 400 });
+    }
     const baseSlug = toSlug(parsed.data.name);
     let slug = baseSlug;
     let suffix = 1;
@@ -138,7 +146,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
 
   if (resource === "customers") {
     const parsed = customerSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid customer" }, { status: 400 });
+    if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid customer" }, { status: 400 });
     const item = await prisma.customer.upsert({
       where: { phone: parsed.data.phone },
       create: {
@@ -160,7 +168,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
 
   if (resource === "testimonials") {
     const parsed = testimonialSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid testimonial" }, { status: 400 });
+    if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid testimonial" }, { status: 400 });
     const item = await prisma.testimonial.create({
       data: {
         customerName: parsed.data.customerName,
@@ -176,7 +184,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
 
   if (resource === "orders") {
     const parsed = checkoutSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid order" }, { status: 400 });
+    if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid order" }, { status: 400 });
     const order = await createCheckoutOrder({
       customer: {
         name: parsed.data.customer.name,
