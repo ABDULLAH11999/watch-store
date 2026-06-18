@@ -3,8 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { customerSchema, productSchema, testimonialSchema, orderStatusSchema } from "@/lib/validators";
 import { toSlug } from "@/lib/utils";
+import { ZodError } from "zod";
 
 export const dynamic = "force-dynamic";
+
+function formatZodError(error: unknown) {
+  if (!(error instanceof ZodError)) return null;
+  return error.issues.map((issue) => `${issue.path.join(".") || "form"}: ${issue.message}`).join("; ");
+}
 
 export async function GET(_: Request, context: { params: Promise<{ resource: string; id: string }> }) {
   const auth = await requireAdmin();
@@ -38,7 +44,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
 
   if (resource === "products") {
     const parsed = productSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid product" }, { status: 400 });
+    if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid product" }, { status: 400 });
     const baseSlug = toSlug(parsed.data.name);
     let slug = baseSlug;
     let suffix = 1;
@@ -66,7 +72,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
 
   if (resource === "customers") {
     const parsed = customerSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid customer" }, { status: 400 });
+    if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid customer" }, { status: 400 });
     const item = await prisma.customer.update({
       where: { id },
       data: {
@@ -82,7 +88,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
 
   if (resource === "testimonials") {
     const parsed = testimonialSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid testimonial" }, { status: 400 });
+    if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid testimonial" }, { status: 400 });
     const item = await prisma.testimonial.update({
       where: { id },
       data: {

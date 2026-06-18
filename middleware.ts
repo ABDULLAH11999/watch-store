@@ -9,10 +9,12 @@ export default auth((req: NextRequest & { auth?: { user?: { email?: string | nul
     if (req.auth?.user?.email) {
       return NextResponse.redirect(new URL("/admin", req.nextUrl.origin));
     }
-    return NextResponse.next();
+    const rewriteUrl = new URL("/auth/admin-login", req.nextUrl.origin);
+    rewriteUrl.search = req.nextUrl.search;
+    return NextResponse.rewrite(rewriteUrl);
   }
 
-  if (pathname.startsWith("/admin")) {
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     if (!req.auth?.user?.email) {
       const loginUrl = new URL("/admin/login", req.nextUrl.origin);
       loginUrl.searchParams.set("callbackUrl", pathname);
@@ -24,5 +26,5 @@ export default auth((req: NextRequest & { auth?: { user?: { email?: string | nul
 });
 
 export const config = {
-  matcher: ["/admin/:path*"]
+  matcher: ["/admin", "/admin/:path*"]
 };
