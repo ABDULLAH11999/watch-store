@@ -41,15 +41,21 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
   }, [selected]);
 
   async function save() {
-    if (!form.customerImage) {
+    if (!form.customerName.trim()) {
+      toast.error("Please enter a customer name");
+      return;
+    }
+    if (!form.customerImage.trim()) {
       toast.error("Please upload a testimonial image");
       return;
     }
     const payload = {
-      ...form,
-      customerImage: form.customerImage,
-      rating: Number(form.rating),
-      sortOrder: Number(form.sortOrder)
+      customerName: form.customerName.trim(),
+      customerImage: form.customerImage.trim(),
+      rating: Number(form.rating || 5),
+      reviewText: form.reviewText.trim(),
+      status: form.status || "DRAFT",
+      sortOrder: Number(form.sortOrder || 0)
     };
     const response = await fetch(`/api/admin/testimonials${selected ? `/${selected.id}` : ""}`, {
       method: selected ? "PUT" : "POST",
@@ -100,7 +106,7 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
             <select value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} className="rounded-2xl border border-black/10 px-4 py-3">
               {[1, 2, 3, 4, 5].map((rating) => <option key={rating} value={rating}>{rating} Stars</option>)}
             </select>
-            <textarea value={form.reviewText} onChange={(e) => setForm({ ...form, reviewText: e.target.value })} placeholder="Review" rows={5} className="rounded-2xl border border-black/10 px-4 py-3" />
+            <textarea value={form.reviewText} onChange={(e) => setForm({ ...form, reviewText: e.target.value })} placeholder="Review (optional)" rows={5} className="rounded-2xl border border-black/10 px-4 py-3" />
             <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="rounded-2xl border border-black/10 px-4 py-3">
               <option value="DRAFT">Draft</option>
               <option value="PUBLISHED">Published</option>

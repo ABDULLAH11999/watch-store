@@ -33,15 +33,10 @@ export const customerSchema = z.object({
 export const testimonialSchema = z.object({
   customerName: z.string().min(2),
   customerImage: z.string().min(1),
-  rating: z.coerce.number().int().min(1).max(5),
-  reviewText: z
-    .string()
-    .min(1)
-    .refine((value) => stripHtml(value).length > 0, {
-      message: "Review text must contain text"
-    }),
-  status: z.enum(["DRAFT", "PUBLISHED"]),
-  sortOrder: z.coerce.number().int().min(0)
+  rating: z.coerce.number().int().min(1).max(5).optional().default(5),
+  reviewText: z.string().optional().default(""),
+  status: z.enum(["DRAFT", "PUBLISHED"]).optional().default("DRAFT"),
+  sortOrder: z.coerce.number().int().min(0).optional().default(0)
 });
 
 export const orderStatusSchema = z.enum(["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"]);

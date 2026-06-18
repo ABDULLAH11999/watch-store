@@ -13,9 +13,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();
   const siteUrl = getSiteUrl(seo);
   const ogImage = seo.ogImage?.trim();
+  const defaultLogoUrl = `${siteUrl}/ui-image/Logo.png`;
+  const resolvedOgImage = ogImage
+    ? ogImage.startsWith("http")
+      ? ogImage
+      : `${siteUrl}${ogImage.startsWith("/") ? ogImage : `/${ogImage}`}`
+    : defaultLogoUrl;
 
   return {
     metadataBase: new URL(siteUrl),
+    icons: {
+      icon: "/ui-image/Logo.png",
+      apple: "/ui-image/Logo.png"
+    },
     title: {
       default: seo.siteTitle || "Anmol Gadgets",
       template: seo.titleTemplate || "%s | Anmol Gadgets"
@@ -33,23 +43,21 @@ export async function generateMetadata(): Promise<Metadata> {
       description: seo.ogDescription || seo.metaDescription,
       url: siteUrl,
       siteName: seo.siteTitle || "Anmol Gadgets",
-      images: ogImage
-        ? [
-            {
-              url: ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage.startsWith("/") ? ogImage : `/${ogImage}`}`,
-              width: 1200,
-              height: 630,
-              alt: seo.ogTitle || seo.siteTitle || "Anmol Gadgets"
-            }
-          ]
-        : undefined,
+      images: [
+        {
+          url: resolvedOgImage,
+          width: 1200,
+          height: 630,
+          alt: seo.ogTitle || seo.siteTitle || "Anmol Gadgets"
+        }
+      ],
       type: "website"
     },
     twitter: {
       card: "summary_large_image",
       title: seo.ogTitle || seo.siteTitle || "Anmol Gadgets",
       description: seo.ogDescription || seo.metaDescription,
-      images: ogImage ? [ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage.startsWith("/") ? ogImage : `/${ogImage}`}`] : undefined
+      images: [resolvedOgImage]
     }
   };
 }
