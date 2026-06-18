@@ -36,22 +36,18 @@ async function main() {
   await prisma.sequence.upsert({
     where: { id: 1 },
     create: { id: 1, lastNumber: 999 },
-    update: { lastNumber: 999 }
+    update: {}
   });
 
   const passwordHash = await bcrypt.hash("Admin@123", 12);
-  await prisma.adminUser.upsert({
-    where: { email: "admin@anmolgadgets.com" },
-    create: { email: "admin@anmolgadgets.com", passwordHash, role: AdminRole.SUPERADMIN },
-    update: { passwordHash, role: AdminRole.SUPERADMIN }
+  const existingAdmin = await prisma.adminUser.findUnique({
+    where: { email: "admin@anmolgadgets.com" }
   });
-
-  await prisma.customer.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.testimonial.deleteMany();
-  await prisma.siteSettings.deleteMany();
-  await prisma.emailLog.deleteMany();
+  if (!existingAdmin) {
+    await prisma.adminUser.create({
+      data: { email: "admin@anmolgadgets.com", passwordHash, role: AdminRole.SUPERADMIN }
+    });
+  }
 
   const businessInfo = {
     contactPhone: "+92 300 1234567",
@@ -88,38 +84,47 @@ async function main() {
       { key: "businessInfo", value: JSON.stringify(businessInfo) },
       { key: "seoSettings", value: JSON.stringify(seoSettings) },
       { key: "emailSettings", value: JSON.stringify(emailSettings) }
-    ]
+    ],
+    skipDuplicates: true
   });
 
   for (const product of products) {
-    await prisma.product.create({
-      data: {
-        name: product.name,
-        brand: product.brand,
-        description: `<p>${product.name} is a signature ${product.brand} masterpiece, crafted for collectors who value precision and prestige.</p>`,
-        price: new Prisma.Decimal(product.price),
-        salePrice: product.salePrice ? new Prisma.Decimal(product.salePrice) : null,
-        saleEndsAt: product.salePrice ? saleEndsAt : null,
-        images: [product.imageUrl],
-        videoUrl: null,
-        stock: 5,
-        status: ProductStatus.PUBLISHED,
-        slug: product.slug
-      }
-    });
+    const existingProduct = await prisma.product.findUnique({ where: { slug: product.slug } });
+    if (!existingProduct) {
+      await prisma.product.create({
+        data: {
+          name: product.name,
+          brand: product.brand,
+          description: `<p>${product.name} is a signature ${product.brand} masterpiece, crafted for collectors who value precision and prestige.</p>`,
+          price: new Prisma.Decimal(product.price),
+          salePrice: product.salePrice ? new Prisma.Decimal(product.salePrice) : null,
+          saleEndsAt: product.salePrice ? saleEndsAt : null,
+          images: [product.imageUrl],
+          videoUrl: null,
+          stock: 5,
+          status: ProductStatus.PUBLISHED,
+          slug: product.slug
+        }
+      });
+    }
   }
 
   for (const testimonial of testimonials) {
-    await prisma.testimonial.create({
-      data: {
-        customerName: testimonial.customerName,
-        customerImage: testimonial.imageUrl,
-        rating: testimonial.rating,
-        reviewText: testimonial.reviewText,
-        status: TestimonialStatus.PUBLISHED,
-        sortOrder: testimonial.sortOrder
-      }
+    const existingTestimonial = await prisma.testimonial.findFirst({
+      where: { customerName: testimonial.customerName }
     });
+    if (!existingTestimonial) {
+      await prisma.testimonial.create({
+        data: {
+          customerName: testimonial.customerName,
+          customerImage: testimonial.imageUrl,
+          rating: testimonial.rating,
+          reviewText: testimonial.reviewText,
+          status: TestimonialStatus.PUBLISHED,
+          sortOrder: testimonial.sortOrder
+        }
+      });
+    }
   }
 }
 
