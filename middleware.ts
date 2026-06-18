@@ -1,29 +1,37 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 
-export default auth((req: NextRequest & { auth?: { user?: { email?: string | null } } | null }) => {
-  const { pathname } = req.nextUrl;
+function hasSessionToken(req: NextRequest) {
+  return Boolean(
+    req.cookies.get("__Secure-authjs.session-token")?.value ||
+      req.cookies.get("authjs.session-token")?.value ||
+      req.cookies.get("__Secure-next-auth.session-token")?.value ||
+      req.cookies.get("next-auth.session-token")?.value
+  );
+}
+
+export default function middleware(req: NextRequest) {
+  const { pathname, origin, search } = req.nextUrl;
+  const isAuthed = hasSessionToken(req);
 
   if (pathname === "/admin/login") {
-    if (req.auth?.user?.email) {
-      return NextResponse.redirect(new URL("/admin", req.nextUrl.origin));
+    if (isAuthed) {
+      return NextResponse.redirect(new URL("/admin", origin));
     }
-    const rewriteUrl = new URL("/auth/admin-login", req.nextUrl.origin);
-    rewriteUrl.search = req.nextUrl.search;
-    return NextResponse.rewrite(rewriteUrl);
+
+    return NextResponse.redirect(new URL(`/auth/admin-login${search}`, origin));
   }
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    if (!req.auth?.user?.email) {
-      const loginUrl = new URL("/admin/login", req.nextUrl.origin);
+    if (!isAuthed) {
+      const loginUrl = new URL("/admin/login", origin);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/admin", "/admin/:path*"]
