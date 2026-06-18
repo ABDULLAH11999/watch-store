@@ -34,7 +34,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/ui-image/Logo.jpg"
+            src="/ui-image/Logo.png"
             alt="Anmol Gadgets logo"
             width={56}
             height={56}

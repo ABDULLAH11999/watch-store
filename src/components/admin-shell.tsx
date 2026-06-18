@@ -75,7 +75,7 @@ export function AdminShell({
           <div className="border-b border-black/10 px-6 py-5">
             <Link href="/admin" className="flex items-center gap-3">
               <Image
-                src="/ui-image/Logo.jpg"
+                src="/ui-image/Logo.png"
                 alt="Anmol Gadgets logo"
                 width={60}
                 height={60}
@@ -129,7 +129,7 @@ export function AdminShell({
               <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                 <Link href="/admin" className="flex items-center gap-3 lg:hidden">
                   <Image
-                    src="/ui-image/Logo.jpg"
+                    src="/ui-image/Logo.png"
                     alt="Anmol Gadgets logo"
                     width={48}
                     height={48}

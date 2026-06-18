@@ -11,15 +11,14 @@ function hasSessionToken(req: NextRequest) {
 }
 
 export default function middleware(req: NextRequest) {
-  const { pathname, origin, search } = req.nextUrl;
+  const { pathname, origin } = req.nextUrl;
   const isAuthed = hasSessionToken(req);
 
   if (pathname === "/admin/login") {
     if (isAuthed) {
       return NextResponse.redirect(new URL("/admin", origin));
     }
-
-    return NextResponse.redirect(new URL(`/auth/admin-login${search}`, origin));
+    return NextResponse.next();
   }
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
