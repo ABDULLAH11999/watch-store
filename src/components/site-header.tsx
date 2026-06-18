@@ -33,9 +33,14 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink p-0.5">
-            <Image src="/ui-image/Logo.jpg" alt="Anmol Gadgets logo" width={40} height={40} className="h-full w-full object-contain" priority />
-          </span>
+          <Image
+            src="/ui-image/Logo.jpg"
+            alt="Anmol Gadgets logo"
+            width={56}
+            height={56}
+            className="h-11 w-11 shrink-0 object-contain sm:h-12 sm:w-12"
+            priority
+          />
           <span>
             <span className="block font-heading text-xl font-semibold tracking-wide text-ink">Anmol Gadgets</span>
             <span className="block text-xs uppercase tracking-[0.3em] text-brown">Luxury Watches</span>

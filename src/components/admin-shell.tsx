@@ -74,9 +74,14 @@ export function AdminShell({
         <aside className="hidden min-h-screen border-r border-black/10 bg-white lg:flex lg:flex-col">
           <div className="border-b border-black/10 px-6 py-5">
             <Link href="/admin" className="flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black p-0.5">
-                <Image src="/ui-image/Logo.jpg" alt="Anmol Gadgets logo" width={44} height={44} className="h-full w-full object-contain" priority />
-              </span>
+              <Image
+                src="/ui-image/Logo.jpg"
+                alt="Anmol Gadgets logo"
+                width={60}
+                height={60}
+                className="h-11 w-11 shrink-0 object-contain"
+                priority
+              />
               <span>
                 <span className="block font-heading text-xl font-semibold leading-none">Anmol Gadgets</span>
                 <span className="mt-1 block text-[11px] uppercase tracking-[0.35em] text-black/45">Admin Panel</span>
@@ -123,9 +128,14 @@ export function AdminShell({
             <div className="flex items-center justify-between gap-3 px-3 py-3 sm:px-4 lg:px-6 lg:py-4">
               <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                 <Link href="/admin" className="flex items-center gap-3 lg:hidden">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black p-0.5">
-                    <Image src="/ui-image/Logo.jpg" alt="Anmol Gadgets logo" width={36} height={36} className="h-full w-full object-contain" priority />
-                  </span>
+                  <Image
+                    src="/ui-image/Logo.jpg"
+                    alt="Anmol Gadgets logo"
+                    width={48}
+                    height={48}
+                    className="h-9 w-9 shrink-0 object-contain"
+                    priority
+                  />
                   <span className="min-w-0">
                     <span className="block truncate font-heading text-base font-semibold leading-none sm:text-lg">Anmol Gadgets</span>
                     <span className="mt-1 block text-[9px] uppercase tracking-[0.28em] text-black/45">Admin</span>
