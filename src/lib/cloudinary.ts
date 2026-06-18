@@ -13,6 +13,10 @@ function hasCloudinaryConfig() {
   return Boolean(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
 }
 
+function isProduction() {
+  return process.env.NODE_ENV === "production";
+}
+
 function normalizeFolder(folder = "anmol-gadgets") {
   const clean = folder.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
   if (clean.includes("testimonial")) return "testimonials";
@@ -38,6 +42,9 @@ async function saveLocally(file: File, folder = "anmol-gadgets") {
 
 export async function uploadToCloudinary(file: File, folder = "anmol-gadgets") {
   if (!hasCloudinaryConfig()) {
+    if (isProduction()) {
+      throw new Error("Cloudinary is required in production. Configure CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.");
+    }
     return saveLocally(file, folder);
   }
 
@@ -58,6 +65,9 @@ export async function uploadToCloudinary(file: File, folder = "anmol-gadgets") {
       stream.end(buffer);
     });
   } catch {
+    if (isProduction()) {
+      throw new Error("Cloudinary upload failed in production. Check Cloudinary credentials and connectivity.");
+    }
     return saveLocally(file, folder);
   }
 }
