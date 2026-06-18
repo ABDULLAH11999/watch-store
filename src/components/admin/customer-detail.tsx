@@ -24,10 +24,23 @@ export function CustomerDetail({ customer, orders }: { customer: Customer; order
   const [form, setForm] = useState(customer);
 
   async function save() {
+    const payload = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      email: form.email?.trim() || null,
+      address: form.address.trim(),
+      city: form.city.trim()
+    };
+
+    if (!payload.name || !payload.phone || !payload.address || !payload.city) {
+      toast.error("Fill customer name, phone, address, and city");
+      return;
+    }
+
     const response = await fetch(`/api/admin/customers/${customer.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify(payload)
     });
     if (!response.ok) return toast.error("Unable to save customer");
     toast.success("Customer updated");

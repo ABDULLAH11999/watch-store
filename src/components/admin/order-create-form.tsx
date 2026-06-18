@@ -22,7 +22,26 @@ export function OrderCreateForm({ products }: { products: Product[] }) {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function getImage(product: Product) {
+    const images = Array.isArray(product.images) ? product.images : [];
+    const firstImage = images.find((image): image is string => typeof image === "string" && image.trim().length > 0);
+    return firstImage || "/ui-image/Logo.png";
+  }
+
   async function submit() {
+    const cleanCustomer = {
+      name: customer.name.trim(),
+      phone: customer.phone.trim(),
+      email: customer.email.trim() || null,
+      address: customer.address.trim(),
+      city: customer.city.trim()
+    };
+
+    if (!cleanCustomer.name || !cleanCustomer.phone || !cleanCustomer.address || !cleanCustomer.city) {
+      toast.error("Fill customer name, phone, address, and city");
+      return;
+    }
+
     const items = products
       .filter((product) => (quantities[product.id] || 0) > 0)
       .map((product) => ({
@@ -30,7 +49,7 @@ export function OrderCreateForm({ products }: { products: Product[] }) {
         name: product.name,
         brand: product.brand,
         slug: product.slug,
-        image: (product.images as string[])?.[0] || "",
+        image: getImage(product),
         quantity: quantities[product.id] || 1,
         price: Number(product.salePrice ?? product.price),
         salePrice: product.salePrice ? Number(product.salePrice) : null
@@ -42,14 +61,17 @@ export function OrderCreateForm({ products }: { products: Product[] }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        customer: { ...customer, email: customer.email || null },
-        notes,
+        customer: cleanCustomer,
+        notes: notes.trim() || null,
         items
       })
     });
     const data = await response.json().catch(() => ({}));
     setLoading(false);
-    if (!response.ok) return toast.error(data.error || "Unable to create order");
+    if (!response.ok) {
+      const errorMessage = typeof data?.error === "string" && data.error.trim().length > 0 ? data.error : data?.issues ? "Please check the order form" : "Unable to create order";
+      return toast.error(errorMessage);
+    }
     toast.success("Order created");
     router.push(`/admin/orders`);
   }

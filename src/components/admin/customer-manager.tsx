@@ -38,7 +38,19 @@ export function CustomerManager({ initialCustomers }: { initialCustomers: Custom
   }, [selected]);
 
   async function save() {
-    const payload = { ...form, email: form.email || null };
+    const payload = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim() || null,
+      address: form.address.trim(),
+      city: form.city.trim()
+    };
+
+    if (!payload.name || !payload.phone || !payload.address || !payload.city) {
+      toast.error("Fill customer name, phone, address, and city");
+      return;
+    }
+
     const response = await fetch(`/api/admin/customers${selected ? `/${selected.id}` : ""}`, {
       method: selected ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,7 +59,7 @@ export function CustomerManager({ initialCustomers }: { initialCustomers: Custom
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return toast.error(data.error || "Unable to save customer");
     toast.success("Customer saved");
-    setCustomers(selected ? customers.map((item) => (item.id === selected.id ? data.item : item)) : [data.item, ...customers]);
+    setCustomers((current) => (selected ? current.map((item) => (item.id === selected.id ? data.item : item)) : [data.item, ...current]));
     setSelected(null);
   }
 

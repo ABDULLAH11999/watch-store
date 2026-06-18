@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { formatPKR } from "@/lib/utils";
 import { OrderDetailModal } from "@/components/admin/order-detail-modal";
+import { Trash2 } from "lucide-react";
 
 type Order = {
   id: string;
@@ -31,8 +32,19 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return toast.error(data.error || "Unable to update order");
-    setOrders(orders.map((order) => (order.id === id ? data.item : order)));
+    setOrders((current) => current.map((order) => (order.id === id ? data.item : order)));
     toast.success("Order updated");
+  }
+
+  async function removeOrder(id: string) {
+    if (!confirm("Delete this order? This cannot be undone.")) return;
+    const response = await fetch(`/api/admin/orders/${id}`, { method: "DELETE" });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) return toast.error(data.error || "Unable to delete order");
+
+    setOrders((current) => current.filter((order) => order.id !== id));
+    setSelected((current) => (current?.id === id ? null : current));
+    toast.success("Order deleted");
   }
 
   const filteredOrders = orders.filter((order) => {
@@ -86,20 +98,27 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
               <span>Total</span>
               <span className="font-semibold">{formatPKR(order.total)}</span>
             </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="rounded-2xl border border-black/10 px-4 py-3 text-sm">
-                  {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-                <button onClick={() => setSelected(order)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
-                  View
-                </button>
-              </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="rounded-2xl border border-black/10 px-4 py-3 text-sm">
+                {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+              <button onClick={() => setSelected(order)} className="rounded-2xl border border-black px-3 py-3 text-sm font-semibold">
+                View
+              </button>
+              <button
+                onClick={() => removeOrder(order.id)}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-500 px-3 py-3 text-sm font-semibold text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </button>
             </div>
-          ))}
+          </div>
+        ))}
       </div>
 
       <div className="hidden overflow-hidden rounded-3xl border border-black/10 lg:block">
@@ -134,13 +153,20 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
                     </select>
                   </td>
                   <td className="px-4 py-4">{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td className="px-4 py-4">
-                  <div className="flex justify-end gap-2">
-                    <button onClick={() => setSelected(order)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
-                      View
-                    </button>
-                  </div>
-                </td>
+                  <td className="px-4 py-4">
+                    <div className="flex justify-end gap-2">
+                      <button onClick={() => setSelected(order)} className="rounded-full border border-black px-3 py-2 text-xs font-semibold">
+                        View
+                      </button>
+                      <button
+                        onClick={() => removeOrder(order.id)}
+                        className="inline-flex items-center gap-2 rounded-full border border-red-500 px-3 py-2 text-xs font-semibold text-red-600"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
+                    </div>
+                  </td>
               </tr>
               ))}
             </tbody>
@@ -165,7 +191,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
         </div>
       </div>
 
-      <OrderDetailModal order={selected} onClose={() => setSelected(null)} onUpdateStatus={updateStatus} />
+      <OrderDetailModal order={selected} onClose={() => setSelected(null)} onUpdateStatus={updateStatus} onDelete={removeOrder} />
     </div>
   );
 }

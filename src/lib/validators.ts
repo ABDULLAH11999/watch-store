@@ -5,8 +5,8 @@ function stripHtml(value: string) {
 }
 
 export const productSchema = z.object({
-  name: z.string().min(2),
-  brand: z.string().min(2),
+  name: z.string().trim().min(2),
+  brand: z.string().trim().min(2),
   description: z
     .string()
     .min(1)
@@ -17,24 +17,24 @@ export const productSchema = z.object({
   salePrice: z.coerce.number().min(0).optional().nullable(),
   saleEndsAt: z.string().datetime().optional().nullable(),
   images: z.array(z.string().min(1)).min(1),
-  videoUrl: z.string().min(1).optional().nullable(),
+  videoUrl: z.string().trim().min(1).optional().nullable(),
   stock: z.coerce.number().int().min(0),
   status: z.enum(["DRAFT", "PUBLISHED", "OUT_OF_STOCK"])
 });
 
 export const customerSchema = z.object({
-  name: z.string().min(2),
-  phone: z.string().min(7),
-  email: z.string().email().optional().nullable(),
-  address: z.string().min(2),
-  city: z.string().min(2)
+  name: z.string().trim().min(2),
+  phone: z.string().trim().min(7),
+  email: z.string().trim().email().optional().nullable(),
+  address: z.string().trim().min(2),
+  city: z.string().trim().min(2)
 });
 
 export const testimonialSchema = z.object({
-  customerName: z.string().min(2),
-  customerImage: z.string().min(1),
+  customerName: z.string().trim().min(2),
+  customerImage: z.string().trim().min(1),
   rating: z.coerce.number().int().min(1).max(5).optional().default(5),
-  reviewText: z.string().optional().default(""),
+  reviewText: z.string().trim().optional().default(""),
   status: z.enum(["DRAFT", "PUBLISHED"]).optional().default("DRAFT"),
   sortOrder: z.coerce.number().int().min(0).optional().default(0)
 });
@@ -43,15 +43,15 @@ export const orderStatusSchema = z.enum(["PENDING", "CONFIRMED", "SHIPPED", "DEL
 
 export const checkoutSchema = z.object({
   customer: customerSchema,
-  notes: z.string().optional().nullable(),
+  notes: z.string().trim().optional().nullable(),
   items: z
     .array(
       z.object({
         productId: z.string(),
-        name: z.string(),
-        brand: z.string(),
-        slug: z.string(),
-        image: z.string().min(1),
+        name: z.string().trim(),
+        brand: z.string().trim(),
+        slug: z.string().trim(),
+        image: z.string().trim().min(1),
         quantity: z.coerce.number().int().min(1),
         price: z.coerce.number().min(0),
         salePrice: z.coerce.number().min(0).optional().nullable()

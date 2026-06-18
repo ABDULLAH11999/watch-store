@@ -1,7 +1,7 @@
 "use client";
 
 import { formatPKR } from "@/lib/utils";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
 type Order = {
   id: string;
@@ -17,11 +17,13 @@ type Order = {
 export function OrderDetailModal({
   order,
   onClose,
-  onUpdateStatus
+  onUpdateStatus,
+  onDelete
 }: {
   order: Order | null;
   onClose: () => void;
   onUpdateStatus: (id: string, status: string) => void;
+  onDelete?: (id: string) => void;
 }) {
   if (!order) return null;
   const steps = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"];
@@ -87,6 +89,16 @@ export function OrderDetailModal({
               <option key={step} value={step}>{step}</option>
             ))}
           </select>
+          {onDelete && (
+            <button
+              type="button"
+              onClick={() => onDelete(order.id)}
+              className="inline-flex items-center gap-2 rounded-2xl border border-red-500 px-4 py-3 font-semibold text-red-600 transition hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Order
+            </button>
+          )}
         </div>
       </div>
     </div>
