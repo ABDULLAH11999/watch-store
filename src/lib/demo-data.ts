@@ -151,9 +151,9 @@ export const demoTestimonials = [
 ] as const;
 
 export const demoSocialProof = [
-  { name: "Ali Hassan", city: "Lahore", product: "Classic Fusion Titanium", image: "/watches/classic-fusion-titanium.jpg" },
-  { name: "Fatima Khan", city: "Karachi", product: "Nautilus 5711", image: "/watches/nautilus-5711.jpg" },
-  { name: "Usman Malik", city: "Islamabad", product: "Aquanaut 5167", image: "/watches/aquanaut-5167.jpg" },
-  { name: "Zara Ahmed", city: "Rawalpindi", product: "Big Bang Unico Black", image: "/watches/big-bang-unico-black.jpg" },
-  { name: "Ahmed Raza", city: "Peshawar", product: "Grand Complications 5270", image: "/watches/grand-complications-5270.jpg" }
+  { name: "Ali Hassan", city: "Lahore", product: "Classic Fusion Titanium" },
+  { name: "Fatima Khan", city: "Karachi", product: "Nautilus 5711" },
+  { name: "Usman Malik", city: "Islamabad", product: "Aquanaut 5167" },
+  { name: "Zara Ahmed", city: "Rawalpindi", product: "Big Bang Unico Black" },
+  { name: "Ahmed Raza", city: "Peshawar", product: "Grand Complications 5270" }
 ] as const;

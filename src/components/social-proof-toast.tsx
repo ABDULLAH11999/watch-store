@@ -1,16 +1,14 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { demoSocialProof } from "@/lib/demo-data";
-import { MediaImage } from "@/components/media-image";
 
 type ToastItem = {
   id: number;
   name: string;
   city: string;
   product: string;
-  image: string;
   timeAgo: string;
 };
 
@@ -27,12 +25,12 @@ export function SocialProofToast() {
           name: sample.name,
           city: sample.city,
           product: sample.product,
-          image: sample.image,
           timeAgo: "2 min ago"
         },
         ...current
       ]);
     };
+
     spawn();
     const timer = setInterval(spawn, 30000);
     return () => clearInterval(timer);
@@ -42,6 +40,7 @@ export function SocialProofToast() {
     const cleanup = setInterval(() => {
       setItems((current) => current.filter((item) => Date.now() - item.id < 5000));
     }, 1000);
+
     return () => clearInterval(cleanup);
   }, []);
 
@@ -57,7 +56,6 @@ export function SocialProofToast() {
             transition={{ type: "spring", stiffness: 260, damping: 24 }}
             className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-3 shadow-xl"
           >
-            <MediaImage src={item.image} alt={item.product} width={40} height={40} className="h-10 w-10 rounded-xl object-cover" />
             <div className="text-sm">
               <p className="font-medium text-ink">
                 {item.name} from {item.city} purchased {item.product}
