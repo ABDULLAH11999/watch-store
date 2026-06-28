@@ -11,7 +11,6 @@ type MediaImageProps = Omit<ImageProps, "src"> & {
 
 export function MediaImage({ src, fallbackSrc = "/ui-image/ui.webp", alt, ...props }: MediaImageProps) {
   const normalized = useMemo(() => normalizeMediaUrl(src), [src]);
-  const isLocalAsset = normalized.startsWith("/");
   const [currentSrc, setCurrentSrc] = useState(normalized || fallbackSrc);
 
   useEffect(() => {
@@ -23,7 +22,7 @@ export function MediaImage({ src, fallbackSrc = "/ui-image/ui.webp", alt, ...pro
       {...props}
       src={currentSrc || fallbackSrc}
       alt={alt}
-      unoptimized={isLocalAsset}
+      unoptimized
       onError={() => setCurrentSrc(fallbackSrc)}
     />
   );

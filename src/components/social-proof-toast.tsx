@@ -2,29 +2,24 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { demoSocialProof } from "@/lib/demo-data";
 
 type ToastItem = {
   id: number;
-  name: string;
-  city: string;
   product: string;
   timeAgo: string;
 };
 
-export function SocialProofToast() {
+export function SocialProofToast({ productTitles }: { productTitles: string[] }) {
   const [items, setItems] = useState<ToastItem[]>([]);
 
   useEffect(() => {
     const spawn = () => {
-      if (!demoSocialProof.length) return;
-      const sample = demoSocialProof[Math.floor(Math.random() * demoSocialProof.length)];
+      if (!productTitles.length) return;
+      const product = productTitles[Math.floor(Math.random() * productTitles.length)];
       setItems((current) => [
         {
           id: Date.now(),
-          name: sample.name,
-          city: sample.city,
-          product: sample.product,
+          product,
           timeAgo: "2 min ago"
         },
         ...current
@@ -34,7 +29,7 @@ export function SocialProofToast() {
     spawn();
     const timer = setInterval(spawn, 30000);
     return () => clearInterval(timer);
-  }, []);
+  }, [productTitles]);
 
   useEffect(() => {
     const cleanup = setInterval(() => {
@@ -53,17 +48,17 @@ export function SocialProofToast() {
             initial={{ x: -120, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -120, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-3 shadow-xl"
-          >
-            <div className="text-sm">
-              <p className="font-medium text-ink">
-                {item.name} from {item.city} purchased {item.product}
-              </p>
-              <p className="text-xs text-black/50">{item.timeAgo}</p>
-            </div>
-          </motion.div>
-        ))}
+          transition={{ type: "spring", stiffness: 260, damping: 24 }}
+          className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-3 shadow-xl"
+        >
+          <div className="text-sm">
+            <p className="font-medium text-ink">
+              New arrival: {item.product}
+            </p>
+            <p className="text-xs text-black/50">{item.timeAgo}</p>
+          </div>
+        </motion.div>
+      ))}
       </AnimatePresence>
     </div>
   );

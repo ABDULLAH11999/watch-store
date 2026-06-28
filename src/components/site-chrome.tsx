@@ -6,7 +6,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { SocialProofToast } from "@/components/social-proof-toast";
 
-export function SiteChrome({ children }: { children: React.ReactNode }) {
+export function SiteChrome({
+  children,
+  latestProductTitles
+}: {
+  children: React.ReactNode;
+  latestProductTitles: string[];
+}) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin");
 
@@ -17,7 +23,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SiteHeader />
-      <SocialProofToast />
+      <SocialProofToast productTitles={latestProductTitles} />
       <main>{children}</main>
       <SiteFooter />
       <WhatsAppButton />
