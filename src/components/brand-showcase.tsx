@@ -8,13 +8,15 @@ const brands = [
   { name: "Rolex", image: "/ui-image/rolex.png", slug: "Rolex" },
   { name: "Hublot", image: "/ui-image/hublot.png", slug: "Hublot" },
   { name: "Patek Philippe", image: "/ui-image/patek.png", slug: "Patek Philippe" },
-  { name: "Reward", image: "/ui-image/reward.png", slug: "Reward" }
+  { name: "Reward", image: "/ui-image/reward.png", slug: "Reward" },
+  { name: "Tissot", image: "/ui-image/tissot.png", slug: "Tissot" },
+  { name: "Citizen", image: "/ui-image/citizen.png", slug: "Citizen" }
 ];
 
 export function BrandShowcase() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:py-10 lg:px-8 lg:py-16">
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         {brands.map((brand, index) => (
           <motion.div
             key={brand.name}

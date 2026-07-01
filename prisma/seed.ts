@@ -22,7 +22,9 @@ const products: SeedProduct[] = [
   { name: "Nautilus 5711", brand: "PATEK PHILIPPE", price: 12500000, slug: "nautilus-5711", imageUrl: "/watches/nautilus-5711.jpg" },
   { name: "Aquanaut 5167", brand: "PATEK PHILIPPE", price: 8900000, salePrice: 7800000, slug: "aquanaut-5167", imageUrl: "/watches/aquanaut-5167.jpg" },
   { name: "Grand Complications 5270", brand: "PATEK PHILIPPE", price: 18000000, slug: "grand-complications-5270", imageUrl: "/watches/grand-complications-5270.jpg" },
-  { name: "Calatrava 5196", brand: "PATEK PHILIPPE", price: 7200000, slug: "calatrava-5196", imageUrl: "/watches/calatrava-5196.jpg" }
+  { name: "Calatrava 5196", brand: "PATEK PHILIPPE", price: 7200000, slug: "calatrava-5196", imageUrl: "/watches/calatrava-5196.jpg" },
+  { name: "PRX Powermatic 80", brand: "TISSOT", price: 220000, slug: "prx-powermatic-80", imageUrl: "/ui-image/tissot.png" },
+  { name: "Tsuyosa Automatic", brand: "CITIZEN", price: 185000, salePrice: 169000, slug: "tsuyosa-automatic", imageUrl: "/ui-image/citizen.png" }
 ];
 
 const testimonials = [

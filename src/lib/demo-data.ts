@@ -72,6 +72,24 @@ export const demoProducts = [
     images: ["/watches/calatrava-5196.jpg"]
   },
   {
+    id: "demo-tissot-prx-powermatic-80",
+    name: "PRX Powermatic 80",
+    slug: "prx-powermatic-80",
+    brand: "TISSOT",
+    price: "220000",
+    salePrice: null,
+    images: ["/ui-image/tissot.png"]
+  },
+  {
+    id: "demo-citizen-tsuyosa-automatic",
+    name: "Tsuyosa Automatic",
+    slug: "tsuyosa-automatic",
+    brand: "CITIZEN",
+    price: "185000",
+    salePrice: "169000",
+    images: ["/ui-image/citizen.png"]
+  },
+  {
     id: "demo-classic-fusion-blue",
     name: "Classic Fusion Blue",
     slug: "classic-fusion-blue",
