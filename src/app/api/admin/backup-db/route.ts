@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { readdir, readFile, stat } from "fs/promises";
+import { createReadStream } from "fs";
+import { readdir, stat } from "fs/promises";
 import path from "path";
+import { Readable } from "stream";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 function serializeDates(value: unknown): unknown {
   if (value instanceof Date) return value.toISOString();
@@ -22,7 +25,6 @@ type PublicBackupFile = {
   size: number;
   mimeType: string;
   encoding: "base64";
-  content: string;
 };
 
 async function collectPublicFiles(baseDir: string, currentDir = baseDir): Promise<PublicBackupFile[]> {
@@ -38,7 +40,6 @@ async function collectPublicFiles(baseDir: string, currentDir = baseDir): Promis
     if (!entry.isFile()) continue;
 
     const fileStats = await stat(fullPath);
-    const content = await readFile(fullPath);
     const relativePath = path.relative(baseDir, fullPath).split(path.sep).join("/");
     const ext = path.extname(entry.name).toLowerCase();
     const mimeType =
@@ -57,12 +58,81 @@ async function collectPublicFiles(baseDir: string, currentDir = baseDir): Promis
       path: relativePath,
       size: fileStats.size,
       mimeType,
-      encoding: "base64",
-      content: content.toString("base64")
+      encoding: "base64"
     });
   }
 
   return results;
+}
+
+async function* streamFileBase64(filePath: string): AsyncGenerator<string> {
+  const input = createReadStream(filePath);
+  let carry = Buffer.alloc(0);
+
+  try {
+    for await (const chunk of input) {
+      const buffer = Buffer.concat([carry, Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)]);
+      const remainder = buffer.length % 3;
+      const end = buffer.length - remainder;
+      if (end > 0) {
+        yield buffer.subarray(0, end).toString("base64");
+      }
+      carry = remainder > 0 ? buffer.subarray(end) : Buffer.alloc(0);
+    }
+
+    if (carry.length > 0) {
+      yield carry.toString("base64");
+    }
+  } finally {
+    input.destroy();
+  }
+}
+
+async function* streamJsonBackup(payload: {
+  exportedAt: string;
+  version: string;
+  tables: Record<string, unknown>;
+  publicFiles: PublicBackupFile[];
+  publicDir: string;
+}) {
+  yield "{";
+  yield `"exportedAt":${JSON.stringify(payload.exportedAt)},`;
+  yield `"version":${JSON.stringify(payload.version)},`;
+  yield `"tables":{`;
+
+  const tableEntries = Object.entries(payload.tables);
+  for (let index = 0; index < tableEntries.length; index++) {
+    const [key, value] = tableEntries[index];
+    if (index > 0) yield ",";
+    yield `${JSON.stringify(key)}:${JSON.stringify(value)}`;
+  }
+
+  yield "},";
+  yield `"publicAssets":{`;
+  yield `"baseDir":"public",`;
+  yield `"files":[`;
+
+  for (let index = 0; index < payload.publicFiles.length; index++) {
+    const file = payload.publicFiles[index];
+    if (index > 0) yield ",";
+    yield "{";
+    yield `"path":${JSON.stringify(file.path)},`;
+    yield `"size":${JSON.stringify(file.size)},`;
+    yield `"mimeType":${JSON.stringify(file.mimeType)},`;
+    yield `"encoding":"base64",`;
+    yield `"content":"`;
+
+    const absolutePath = path.join(payload.publicDir, file.path.split("/").join(path.sep));
+    for await (const chunk of streamFileBase64(absolutePath)) {
+      yield chunk;
+    }
+
+    yield `"}`;
+  }
+
+  yield "]";
+  yield "}";
+  yield "}";
 }
 
 export async function GET() {
@@ -98,16 +168,14 @@ export async function GET() {
       adminUsers: serializeDates(adminUsers),
       sequences: serializeDates(sequences)
     },
-    publicAssets: {
-      baseDir: "public",
-      files: publicFiles
-    }
+    publicFiles,
+    publicDir
   };
 
   const filename = `anmol-gadgets-backup-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
-  const json = JSON.stringify(backup, null, 2);
+  const stream = Readable.from(streamJsonBackup(backup));
 
-  return new NextResponse(json, {
+  return new NextResponse(stream as any, {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"`
