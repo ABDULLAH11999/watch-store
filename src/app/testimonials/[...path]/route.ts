@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
+import { createReadStream } from "fs";
 import path from "path";
+import { Readable } from "stream";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +18,8 @@ function getContentType(fileName: string) {
 export async function GET(_request: Request, { params }: { params: { path: string[] } }) {
   const filePath = path.join(process.cwd(), "public", "testimonials", ...params.path);
   try {
-    const file = await readFile(filePath);
-    return new NextResponse(file, {
+    const file = createReadStream(filePath);
+    return new NextResponse(Readable.toWeb(file) as any, {
       headers: {
         "Content-Type": getContentType(filePath),
         "Cache-Control": "public, max-age=31536000, immutable"
