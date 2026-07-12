@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { customerSchema, productSchema, testimonialSchema, orderStatusSchema } from "@/lib/validators";
 import { toSlug } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,12 @@ export const dynamic = "force-dynamic";
 function formatZodError(error: unknown) {
   if (!(error instanceof ZodError)) return null;
   return error.issues.map((issue) => `${issue.path.join(".") || "form"}: ${issue.message}`).join("; ");
+}
+
+function refreshStorefront(paths: string[]) {
+  for (const path of paths) {
+    revalidatePath(path, "page");
+  }
 }
 
 export async function GET(_: Request, context: { params: Promise<{ resource: string; id: string }> }) {
@@ -43,6 +50,8 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
   const body = await request.json();
 
   if (resource === "products") {
+    const existing = await prisma.product.findUnique({ where: { id } });
+    if (!existing) return NextResponse.json({ error: "Product not found" }, { status: 404 });
     const parsed = productSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid product" }, { status: 400 });
     const baseSlug = toSlug(parsed.data.name);
@@ -67,6 +76,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
         slug,
       }
     });
+    refreshStorefront(["/", "/collections", `/product/${existing.slug}`, `/product/${item.slug}`]);
     return NextResponse.json({ item });
   }
 
@@ -87,6 +97,8 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
   }
 
   if (resource === "testimonials") {
+    const existing = await prisma.testimonial.findUnique({ where: { id } });
+    if (!existing) return NextResponse.json({ error: "Testimonial not found" }, { status: 404 });
     const parsed = testimonialSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: formatZodError(parsed.error) || "Invalid testimonial" }, { status: 400 });
     const item = await prisma.testimonial.update({
@@ -100,6 +112,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
         sortOrder: parsed.data.sortOrder
       }
     });
+    refreshStorefront(["/", "/product/[slug]"]);
     return NextResponse.json({ item });
   }
 
@@ -126,7 +139,13 @@ export async function DELETE(_: Request, context: { params: Promise<{ resource: 
   const { resource, id } = await context.params;
 
   if (resource === "products") {
+    const existing = await prisma.product.findUnique({ where: { id } });
     await prisma.product.delete({ where: { id } });
+    if (existing) {
+      refreshStorefront(["/", "/collections", `/product/${existing.slug}`]);
+    } else {
+      refreshStorefront(["/", "/collections"]);
+    }
     return NextResponse.json({ ok: true });
   }
   if (resource === "customers") {
@@ -135,6 +154,7 @@ export async function DELETE(_: Request, context: { params: Promise<{ resource: 
   }
   if (resource === "testimonials") {
     await prisma.testimonial.delete({ where: { id } });
+    refreshStorefront(["/", "/product/[slug]"]);
     return NextResponse.json({ ok: true });
   }
   if (resource === "orders") {

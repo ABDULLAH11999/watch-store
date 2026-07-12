@@ -4,7 +4,7 @@ import { Providers } from "@/components/providers";
 import type { Metadata } from "next";
 import { getSeoSettings, getSiteUrl } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });

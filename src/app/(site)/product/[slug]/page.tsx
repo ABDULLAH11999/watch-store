@@ -5,7 +5,7 @@ import { ProductPageClient } from "@/components/product-page-client";
 import { ProductCard } from "@/components/product-card";
 import { demoProducts } from "@/lib/demo-data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
   let product: any = null;

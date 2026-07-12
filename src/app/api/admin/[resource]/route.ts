@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/admin";
 import { customerSchema, productSchema, testimonialSchema, checkoutSchema } from "@/lib/validators";
 import { toSlug } from "@/lib/utils";
 import { createCheckoutOrder } from "@/lib/order";
+import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,12 @@ export const dynamic = "force-dynamic";
 function formatZodError(error: unknown) {
   if (!(error instanceof ZodError)) return null;
   return error.issues.map((issue) => `${issue.path.join(".") || "form"}: ${issue.message}`).join("; ");
+}
+
+function refreshStorefront(paths: string[]) {
+  for (const path of paths) {
+    revalidatePath(path, "page");
+  }
 }
 
 export async function GET(request: Request, context: { params: Promise<{ resource: string }> }) {
@@ -141,6 +148,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
         slug,
       }
     });
+    refreshStorefront(["/", "/collections", `/product/${item.slug}`]);
     return NextResponse.json({ item });
   }
 
@@ -179,6 +187,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
         sortOrder: parsed.data.sortOrder
       }
     });
+    refreshStorefront(["/", "/product/[slug]"]);
     return NextResponse.json({ item });
   }
 
@@ -219,6 +228,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
         })
       )
     );
+    refreshStorefront(["/"]);
     return NextResponse.json({ ok: true });
   }
 

@@ -11,7 +11,7 @@ import { WhyChooseSection } from "@/components/why-choose-section";
 import { FaqSection } from "@/components/faq-section";
 import { demoProducts, demoTestimonials } from "@/lib/demo-data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function HomePage() {
   let featured: Array<{
