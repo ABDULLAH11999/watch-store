@@ -1,13 +1,9 @@
-import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import type { Metadata } from "next";
 import { getSeoSettings, getSiteUrl } from "@/lib/seo";
 
 export const revalidate = 300;
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();
@@ -64,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en">
       <body>
         <Providers>
           {children}

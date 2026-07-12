@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import { AdminLoginCard } from "@/components/admin-login-card";
 
 export default function AdminLoginPage() {
-  return <AdminLoginCard />;
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginCard />
+    </Suspense>
+  );
 }
