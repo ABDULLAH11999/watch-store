@@ -11,6 +11,84 @@ import { ZodError } from "zod";
 
 export const dynamic = "force-dynamic";
 
+function serializeProduct(product: {
+  id: string;
+  name: string;
+  brand: string;
+  price: { toString(): string };
+  salePrice: { toString(): string } | null;
+  images: unknown;
+  stock: number;
+  status: string;
+  slug: string;
+}) {
+  return {
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    price: product.price.toString(),
+    salePrice: product.salePrice?.toString() || null,
+    images: Array.isArray(product.images) ? (product.images as string[]) : [],
+    stock: product.stock,
+    status: product.status,
+    slug: product.slug
+  };
+}
+
+function serializeCustomer(customer: {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  address: string;
+  city: string;
+  createdAt: Date;
+}) {
+  return {
+    id: customer.id,
+    name: customer.name,
+    phone: customer.phone,
+    email: customer.email,
+    address: customer.address,
+    city: customer.city,
+    createdAt: customer.createdAt.toISOString()
+  };
+}
+
+function serializeOrder(order: {
+  id: string;
+  orderNumber: string;
+  status: string;
+  subtotal: { toString(): string };
+  total: { toString(): string };
+  createdAt: Date;
+  items: unknown;
+  customer: {
+    name: string;
+    phone: string;
+    email: string | null;
+    address: string;
+    city: string;
+  };
+}) {
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    status: order.status,
+    subtotal: order.subtotal.toString(),
+    total: order.total.toString(),
+    customer: {
+      name: order.customer.name,
+      phone: order.customer.phone,
+      email: order.customer.email,
+      address: order.customer.address,
+      city: order.customer.city
+    },
+    createdAt: order.createdAt.toISOString(),
+    items: Array.isArray(order.items) ? (order.items as Array<{ name: string; quantity: number; price: number }>) : []
+  };
+}
+
 function formatZodError(error: unknown) {
   if (!(error instanceof ZodError)) return null;
   return error.issues.map((issue) => `${issue.path.join(".") || "form"}: ${issue.message}`).join("; ");
@@ -33,10 +111,11 @@ export async function GET(request: Request, context: { params: Promise<{ resourc
     const search = url.searchParams.get("search") || "";
     const take = 10;
     const where: Prisma.ProductWhereInput = search
-      ? {
+        ? {
           OR: [
             { name: { contains: search, mode: "insensitive" as const } },
-            { brand: { contains: search, mode: "insensitive" as const } }
+            { brand: { contains: search, mode: "insensitive" as const } },
+            { slug: { contains: search, mode: "insensitive" as const } }
           ]
         }
       : {};
@@ -44,7 +123,7 @@ export async function GET(request: Request, context: { params: Promise<{ resourc
       prisma.product.findMany({ where, skip: (page - 1) * take, take, orderBy: { createdAt: "desc" } }),
       prisma.product.count({ where })
     ]);
-    return NextResponse.json({ items, total });
+    return NextResponse.json({ items: items.map(serializeProduct), total });
   }
 
   if (resource === "customers") {
@@ -52,18 +131,19 @@ export async function GET(request: Request, context: { params: Promise<{ resourc
     const search = url.searchParams.get("search") || "";
     const take = 10;
     const where: Prisma.CustomerWhereInput = search
-      ? {
+        ? {
           OR: [
             { name: { contains: search, mode: "insensitive" as const } },
-            { phone: { contains: search, mode: "insensitive" as const } }
+            { phone: { contains: search, mode: "insensitive" as const } },
+            { city: { contains: search, mode: "insensitive" as const } }
           ]
         }
       : {};
     const [items, total] = await Promise.all([
-      prisma.customer.findMany({ where, skip: (page - 1) * take, take, orderBy: { createdAt: "desc" }, include: { orders: true } }),
+      prisma.customer.findMany({ where, skip: (page - 1) * take, take, orderBy: { createdAt: "desc" } }),
       prisma.customer.count({ where })
     ]);
-    return NextResponse.json({ items, total });
+    return NextResponse.json({ items: items.map(serializeCustomer), total });
   }
 
   if (resource === "testimonials") {
@@ -100,7 +180,7 @@ export async function GET(request: Request, context: { params: Promise<{ resourc
       }),
       prisma.order.count({ where })
     ]);
-    return NextResponse.json({ items, total });
+    return NextResponse.json({ items: items.map(serializeOrder), total });
   }
 
   if (resource === "settings") {
@@ -149,7 +229,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
       }
     });
     refreshStorefront(["/", "/collections", `/product/${item.slug}`]);
-    return NextResponse.json({ item });
+    return NextResponse.json({ item: serializeProduct(item) });
   }
 
   if (resource === "customers") {
@@ -171,7 +251,7 @@ export async function POST(request: Request, context: { params: Promise<{ resour
         city: parsed.data.city
       }
     });
-    return NextResponse.json({ item });
+    return NextResponse.json({ item: serializeCustomer(item) });
   }
 
   if (resource === "testimonials") {

@@ -5,28 +5,37 @@ import { demoProducts, demoTestimonials } from "@/lib/demo-data";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage() {
-  const serialized = await (async () => {
+  const { orders, total } = await (async () => {
     try {
-      const orders = await prisma.order.findMany({
-        include: { customer: true },
-        orderBy: { createdAt: "desc" }
-      });
-      return orders.map((order) => ({
-        id: order.id,
-        orderNumber: order.orderNumber,
-        status: order.status,
-        subtotal: order.subtotal.toString(),
-        total: order.total.toString(),
-        customer: {
-          name: order.customer.name,
-          phone: order.customer.phone,
-          email: order.customer.email
-        },
-        createdAt: order.createdAt.toISOString(),
-        items: Array.isArray(order.items) ? (order.items as Array<{ name: string; quantity: number; price: number }>) : []
-      }));
+      const [orders, total] = await Promise.all([
+        prisma.order.findMany({
+          include: { customer: true },
+          orderBy: { createdAt: "desc" },
+          take: 10
+        }),
+        prisma.order.count()
+      ]);
+      return {
+        orders: orders.map((order) => ({
+          id: order.id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          subtotal: order.subtotal.toString(),
+          total: order.total.toString(),
+          customer: {
+            name: order.customer.name,
+            phone: order.customer.phone,
+            email: order.customer.email,
+            address: order.customer.address,
+            city: order.customer.city
+          },
+          createdAt: order.createdAt.toISOString(),
+          items: Array.isArray(order.items) ? (order.items as Array<{ name: string; quantity: number; price: number }>) : []
+        })),
+        total
+      };
     } catch {
-      return demoProducts.slice(0, 6).map((product, index) => ({
+      const orders = demoProducts.slice(0, 6).map((product, index) => ({
         id: `demo-order-${index + 1}`,
         orderNumber: `ORD-${1000 + index}`,
         status: index % 3 === 0 ? "PENDING" : "CONFIRMED",
@@ -35,11 +44,14 @@ export default async function AdminOrdersPage() {
         customer: {
           name: demoTestimonials[index % demoTestimonials.length].customerName,
           phone: `0300-12345${index}`,
-          email: null
+          email: null,
+          address: "Luxury Plaza, Karachi",
+          city: "Karachi"
         },
         createdAt: new Date(Date.now() - index * 86400000).toISOString(),
         items: [{ name: product.name, quantity: 1, price: Number(product.salePrice ?? product.price) }]
       }));
+      return { orders, total: orders.length };
     }
   })();
   return (
@@ -53,7 +65,7 @@ export default async function AdminOrdersPage() {
           Create Order
         </a>
       </div>
-      <OrderManager initialOrders={serialized} />
+      <OrderManager initialOrders={orders} initialTotal={total} />
     </div>
   );
 }

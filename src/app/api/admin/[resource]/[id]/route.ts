@@ -8,6 +8,90 @@ import { ZodError } from "zod";
 
 export const dynamic = "force-dynamic";
 
+function serializeProduct(product: {
+  id: string;
+  name: string;
+  brand: string;
+  price: { toString(): string };
+  salePrice: { toString(): string } | null;
+  description: string;
+  saleEndsAt: Date | null;
+  images: unknown;
+  videoUrl: string | null;
+  stock: number;
+  status: string;
+  slug: string;
+}) {
+  return {
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    description: product.description,
+    price: product.price.toString(),
+    salePrice: product.salePrice?.toString() || null,
+    saleEndsAt: product.saleEndsAt?.toISOString() || null,
+    images: Array.isArray(product.images) ? (product.images as string[]) : [],
+    videoUrl: product.videoUrl,
+    stock: product.stock,
+    status: product.status,
+    slug: product.slug
+  };
+}
+
+function serializeCustomer(customer: {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  address: string;
+  city: string;
+  createdAt: Date;
+}) {
+  return {
+    id: customer.id,
+    name: customer.name,
+    phone: customer.phone,
+    email: customer.email,
+    address: customer.address,
+    city: customer.city,
+    createdAt: customer.createdAt.toISOString()
+  };
+}
+
+function serializeOrder(order: {
+  id: string;
+  orderNumber: string;
+  status: string;
+  subtotal: { toString(): string };
+  total: { toString(): string };
+  createdAt: Date;
+  items: unknown;
+  customer: {
+    name: string;
+    phone: string;
+    email: string | null;
+    address: string;
+    city: string;
+  };
+}) {
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    status: order.status,
+    subtotal: order.subtotal.toString(),
+    total: order.total.toString(),
+    customer: {
+      name: order.customer.name,
+      phone: order.customer.phone,
+      email: order.customer.email,
+      address: order.customer.address,
+      city: order.customer.city
+    },
+    createdAt: order.createdAt.toISOString(),
+    items: Array.isArray(order.items) ? (order.items as Array<{ name: string; quantity: number; price: number }>) : []
+  };
+}
+
 function formatZodError(error: unknown) {
   if (!(error instanceof ZodError)) return null;
   return error.issues.map((issue) => `${issue.path.join(".") || "form"}: ${issue.message}`).join("; ");
@@ -26,7 +110,7 @@ export async function GET(_: Request, context: { params: Promise<{ resource: str
 
   if (resource === "products") {
     const item = await prisma.product.findUnique({ where: { id } });
-    return NextResponse.json({ item });
+    return NextResponse.json({ item: item ? serializeProduct(item) : null });
   }
   if (resource === "customers") {
     const item = await prisma.customer.findUnique({ where: { id }, include: { orders: true } });
@@ -38,7 +122,7 @@ export async function GET(_: Request, context: { params: Promise<{ resource: str
   }
   if (resource === "orders") {
     const item = await prisma.order.findUnique({ where: { id }, include: { customer: true } });
-    return NextResponse.json({ item });
+    return NextResponse.json({ item: item ? serializeOrder(item) : null });
   }
   return NextResponse.json({ error: "Unknown resource" }, { status: 404 });
 }
@@ -77,7 +161,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
       }
     });
     refreshStorefront(["/", "/collections", `/product/${existing.slug}`, `/product/${item.slug}`]);
-    return NextResponse.json({ item });
+    return NextResponse.json({ item: serializeProduct(item) });
   }
 
   if (resource === "customers") {
@@ -93,7 +177,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
         city: parsed.data.city
       }
     });
-    return NextResponse.json({ item });
+    return NextResponse.json({ item: serializeCustomer(item) });
   }
 
   if (resource === "testimonials") {
@@ -127,7 +211,7 @@ export async function PUT(request: Request, context: { params: Promise<{ resourc
       },
       include: { customer: true }
     });
-    return NextResponse.json({ item });
+    return NextResponse.json({ item: serializeOrder(item) });
   }
 
   return NextResponse.json({ error: "Unknown resource" }, { status: 404 });

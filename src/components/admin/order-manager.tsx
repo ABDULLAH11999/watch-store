@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { formatPKR } from "@/lib/utils";
 import { OrderDetailModal } from "@/components/admin/order-detail-modal";
@@ -12,17 +12,71 @@ type Order = {
   status: string;
   subtotal: string;
   total: string;
-  customer: { name: string; phone: string; email?: string | null };
+  customer: { name: string; phone: string; email?: string | null; address?: string; city?: string };
   createdAt: string;
   items: Array<{ name: string; quantity: number; price: number }>;
 };
 
-export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
+const pageSize = 10;
+
+export function OrderManager({ initialOrders, initialTotal }: { initialOrders: Order[]; initialTotal: number }) {
   const [orders, setOrders] = useState(initialOrders);
+  const [total, setTotal] = useState(initialTotal);
   const [selected, setSelected] = useState<Order | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  useEffect(() => setPage(1), [search, statusFilter]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams({ page: String(page) });
+    const query = search.trim();
+
+    if (query) {
+      params.set("search", query);
+    }
+
+    if (statusFilter !== "ALL") {
+      params.set("status", statusFilter);
+    }
+
+    const timer = setTimeout(async () => {
+      setLoading(true);
+
+      try {
+        const response = await fetch(`/api/admin/orders?${params.toString()}`, {
+          signal: controller.signal,
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to load orders");
+        }
+
+        const data = (await response.json()) as { items: Order[]; total: number };
+        setOrders(data.items);
+        setTotal(data.total);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error(error);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }, 200);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [page, refreshKey, search, statusFilter]);
 
   async function updateStatus(id: string, status: string) {
     const response = await fetch(`/api/admin/orders/${id}`, {
@@ -33,6 +87,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return toast.error(data.error || "Unable to update order");
     setOrders((current) => current.map((order) => (order.id === id ? data.item : order)));
+    setSelected((current) => (current?.id === id ? data.item : current));
     toast.success("Order updated");
   }
 
@@ -42,23 +97,17 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return toast.error(data.error || "Unable to delete order");
 
+    const nextCount = Math.max(0, total - 1);
     setOrders((current) => current.filter((order) => order.id !== id));
+    setTotal(nextCount);
     setSelected((current) => (current?.id === id ? null : current));
+    if (orders.length === 1 && page > 1) {
+      setPage((current) => current - 1);
+    } else {
+      setRefreshKey((current) => current + 1);
+    }
     toast.success("Order deleted");
   }
-
-  const filteredOrders = orders.filter((order) => {
-    const query = search.toLowerCase();
-    const matchesSearch = !query || order.orderNumber.toLowerCase().includes(query) || order.customer.name.toLowerCase().includes(query) || order.customer.phone.toLowerCase().includes(query);
-    const matchesStatus = statusFilter === "ALL" || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const pageSize = 10;
-  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
-  const pagedOrders = useMemo(() => filteredOrders.slice((page - 1) * pageSize, page * pageSize), [filteredOrders, page]);
-
-  useEffect(() => setPage(1), [search, statusFilter]);
 
   return (
     <div className="space-y-5 rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-6">
@@ -84,7 +133,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
       </div>
 
       <div className="grid gap-4 lg:hidden">
-        {pagedOrders.map((order) => (
+        {orders.map((order) => (
           <div key={order.id} className="rounded-3xl border border-black/10 p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -135,7 +184,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
               </tr>
             </thead>
             <tbody>
-              {pagedOrders.map((order) => (
+              {orders.map((order) => (
                 <tr key={order.id} className="border-t border-black/5">
                   <td className="px-4 py-4 font-medium">{order.orderNumber}</td>
                   <td className="px-4 py-4">
@@ -169,6 +218,13 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
                   </td>
               </tr>
               ))}
+              {orders.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-black/50">
+                    {loading ? "Loading orders..." : "No orders found."}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -176,7 +232,7 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
 
       <div className="flex items-center justify-between gap-3 text-sm">
         <p className="text-black/50">
-          Showing {filteredOrders.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredOrders.length)} of {filteredOrders.length}
+          Showing {total === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
         </p>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">
