@@ -10,6 +10,7 @@ import { TestimonialCarousel } from "@/components/swiper-testimonials";
 import { WhyChooseSection } from "@/components/why-choose-section";
 import { FaqSection } from "@/components/faq-section";
 import { demoProducts, demoTestimonials } from "@/lib/demo-data";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const revalidate = 300;
 
@@ -59,7 +60,7 @@ export default async function HomePage() {
     testimonials = [];
   }
 
-  if (featured.length === 0) {
+  if (featured.length === 0 && canUseDemoFallback()) {
     featured = demoProducts.slice(0, 10).map((product) => ({
       id: product.id,
       name: product.name,

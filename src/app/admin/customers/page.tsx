@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { CustomerManager } from "@/components/admin/customer-manager";
 import { demoTestimonials } from "@/lib/demo-data";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,9 @@ export default async function AdminCustomersPage() {
         total
       };
     } catch {
+      if (!canUseDemoFallback()) {
+        return { customers: [], total: 0 };
+      }
       const customers = demoTestimonials.map((testimonial, index) => ({
         id: `demo-customer-${index + 1}`,
         name: testimonial.customerName,

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { demoProducts } from "@/lib/demo-data";
 import { ProductTable } from "@/components/admin/product-table";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,9 @@ export default async function AdminProductsPage() {
         total
       };
     } catch {
+      if (!canUseDemoFallback()) {
+        return { products: [], total: 0 };
+      }
       return {
         products: demoProducts.map((product) => ({
           id: product.id,

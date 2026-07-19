@@ -4,6 +4,7 @@ import { ProductGallery } from "@/components/product-gallery";
 import { ProductPageClient } from "@/components/product-page-client";
 import { ProductCard } from "@/components/product-card";
 import { demoProducts } from "@/lib/demo-data";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const revalidate = 300;
 
@@ -22,16 +23,18 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
         },
         take: 4
       });
-    } else if (!product) {
+    } else if (!product && canUseDemoFallback()) {
       product = demoProducts.find((item) => item.slug === params.slug) ?? null;
       if (product) {
         related = demoProducts.filter((item) => item.brand === product.brand && item.slug !== product.slug).slice(0, 4);
       }
     }
   } catch {
-    product = demoProducts.find((item) => item.slug === params.slug) ?? null;
-    if (product) {
-      related = demoProducts.filter((item) => item.brand === product.brand && item.slug !== product.slug).slice(0, 4);
+    if (canUseDemoFallback()) {
+      product = demoProducts.find((item) => item.slug === params.slug) ?? null;
+      if (product) {
+        related = demoProducts.filter((item) => item.brand === product.brand && item.slug !== product.slug).slice(0, 4);
+      }
     }
   }
 

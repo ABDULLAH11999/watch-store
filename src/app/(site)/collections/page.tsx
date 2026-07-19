@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product-card";
 import { demoProducts } from "@/lib/demo-data";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const revalidate = 300;
 
@@ -52,6 +53,11 @@ export default async function CollectionsPage({
       prisma.product.count({ where })
     ]);
   } catch {
+    if (!canUseDemoFallback()) {
+      products = [];
+      total = 0;
+      return;
+    }
     const filtered = demoProducts.filter((product) => {
       const matchesSearch =
         !search ||

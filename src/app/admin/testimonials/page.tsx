@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { TestimonialManager } from "@/components/admin/testimonial-manager";
 import { demoTestimonials } from "@/lib/demo-data";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,9 @@ export default async function AdminTestimonialsPage() {
         updatedAt: item.updatedAt.toISOString()
       }));
     } catch {
+      if (!canUseDemoFallback()) {
+        return [];
+      }
       return demoTestimonials.map((item, index) => ({
         id: item.id,
         customerName: item.customerName,

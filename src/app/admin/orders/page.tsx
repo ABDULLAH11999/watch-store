@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { OrderManager } from "@/components/admin/order-manager";
 import { demoProducts, demoTestimonials } from "@/lib/demo-data";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,9 @@ export default async function AdminOrdersPage() {
         total
       };
     } catch {
+      if (!canUseDemoFallback()) {
+        return { orders: [], total: 0 };
+      }
       const orders = demoProducts.slice(0, 6).map((product, index) => ({
         id: `demo-order-${index + 1}`,
         orderNumber: `ORD-${1000 + index}`,
