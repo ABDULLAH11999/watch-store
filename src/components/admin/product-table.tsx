@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -19,22 +19,61 @@ type Product = {
   slug: string;
 };
 
-export function ProductTable({ initialProducts }: { initialProducts: Product[] }) {
+const pageSize = 10;
+
+export function ProductTable({ initialProducts, initialTotal }: { initialProducts: Product[]; initialTotal: number }) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
+  const [total, setTotal] = useState(initialTotal);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-
-  const filtered = products.filter((product) => {
-    const query = search.toLowerCase();
-    return !query || product.name.toLowerCase().includes(query) || product.brand.toLowerCase().includes(query) || product.slug.toLowerCase().includes(query);
-  });
-
-  const pageSize = 10;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pagedProducts = useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page]);
+  const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   useEffect(() => setPage(1), [search]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const query = search.trim();
+    const params = new URLSearchParams({ page: String(page) });
+
+    if (query) {
+      params.set("search", query);
+    }
+
+    const timer = setTimeout(async () => {
+      setLoading(true);
+
+      try {
+        const response = await fetch(`/api/admin/products?${params.toString()}`, {
+          signal: controller.signal,
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to load products");
+        }
+
+        const data = (await response.json()) as { items: Product[]; total: number };
+        setProducts(data.items);
+        setTotal(data.total);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error(error);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }, 200);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [page, refreshKey, search]);
 
   async function remove(id: string) {
     if (!confirm("Delete this product?")) return;
@@ -45,7 +84,14 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
       return;
     }
     toast.success("Product deleted");
+    const nextCount = Math.max(0, total - 1);
     setProducts((current) => current.filter((item) => item.id !== id));
+    setTotal(nextCount);
+    if (products.length === 1 && page > 1) {
+      setPage((current) => current - 1);
+    } else {
+      setRefreshKey((current) => current + 1);
+    }
     router.refresh();
   }
 
@@ -70,7 +116,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
       </div>
 
       <div className="grid gap-4 lg:hidden">
-        {pagedProducts.map((product) => (
+        {products.map((product) => (
           <div key={product.id} className="rounded-3xl border border-black/10 p-4">
             <div className="flex gap-3">
               <div className="h-18 w-18 shrink-0 overflow-hidden rounded-2xl border border-black/10 bg-black/5 sm:h-20 sm:w-20">
@@ -113,7 +159,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
               </tr>
             </thead>
             <tbody>
-              {pagedProducts.map((product) => (
+              {products.map((product) => (
                 <tr key={product.id} className="border-t border-black/5">
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
@@ -146,10 +192,10 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {products.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-10 text-center text-sm text-black/50">
-                    No products found.
+                    {loading ? "Loading products..." : "No products found."}
                   </td>
                 </tr>
               )}
@@ -160,7 +206,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
 
       <div className="flex items-center justify-between gap-3 text-sm">
         <p className="text-black/50">
-          Showing {filtered.length === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, filtered.length)} of {filtered.length}
+          Showing {total === 0 ? 0 : (page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
         </p>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="rounded-full border border-black/10 px-3 py-2 font-semibold disabled:opacity-40">

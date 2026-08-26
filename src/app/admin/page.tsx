@@ -3,6 +3,7 @@ import { StatCard } from "@/components/admin/stat-card";
 import { RevenueChart } from "@/components/admin/revenue-chart";
 import { formatPKR } from "@/lib/utils";
 import { demoProducts, demoTestimonials } from "@/lib/demo-data";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -26,18 +27,20 @@ export default async function AdminDashboardPage() {
       })
     ]);
   } catch {
-    totalOrders = demoProducts.length;
-    totalCustomers = demoTestimonials.length;
-    pendingOrders = Math.max(1, Math.ceil(demoProducts.length / 4));
-    revenue = { _sum: { total: demoProducts.reduce((sum, product) => sum + Number(product.salePrice ?? product.price), 0) } };
-    recentOrders = demoProducts.slice(0, 5).map((product, index) => ({
-      id: product.id,
-      orderNumber: `ORD-${1000 + index}`,
-      customer: { name: demoTestimonials[index % demoTestimonials.length].customerName },
-      total: Number(product.salePrice ?? product.price),
-      status: index % 2 === 0 ? "PENDING" : "CONFIRMED",
-      createdAt: new Date()
-    }));
+    if (canUseDemoFallback()) {
+      totalOrders = demoProducts.length;
+      totalCustomers = demoTestimonials.length;
+      pendingOrders = Math.max(1, Math.ceil(demoProducts.length / 4));
+      revenue = { _sum: { total: demoProducts.reduce((sum, product) => sum + Number(product.salePrice ?? product.price), 0) } };
+      recentOrders = demoProducts.slice(0, 5).map((product, index) => ({
+        id: product.id,
+        orderNumber: `ORD-${1000 + index}`,
+        customer: { name: demoTestimonials[index % demoTestimonials.length].customerName },
+        total: Number(product.salePrice ?? product.price),
+        status: index % 2 === 0 ? "PENDING" : "CONFIRMED",
+        createdAt: new Date()
+      }));
+    }
   }
 
   const chartData = recentOrders

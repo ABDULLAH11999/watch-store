@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { demoProducts } from "@/lib/demo-data";
 import { ProductFormCard } from "@/components/admin/product-form-card";
 import { notFound } from "next/navigation";
+import { canUseDemoFallback } from "@/lib/demo-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,9 @@ async function getProduct(id: string) {
       slug: product.slug
     };
   } catch {
+    if (!canUseDemoFallback()) {
+      return null;
+    }
     const fallback = demoProducts.find((product) => product.id === id || product.slug === id);
     if (!fallback) return null;
     return {
