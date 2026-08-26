@@ -26,19 +26,40 @@ export default async function HomePage() {
   let testimonials: Array<{ id: string; customerName: string; customerImage: string; rating: number; reviewText: string }> = [];
 
   try {
-    const [products, testimonialRows] = await Promise.all([
-        prisma.product.findMany({
-          where: { status: "PUBLISHED" },
-          orderBy: { createdAt: "desc" },
-          take: 10
-        }),
+    const [allProducts, testimonialRows] = await Promise.all([
+      prisma.product.findMany({
+        where: { status: "PUBLISHED" },
+        orderBy: { createdAt: "desc" },
+        take: 50
+      }),
       prisma.testimonial.findMany({
         where: { status: "PUBLISHED" },
         orderBy: { sortOrder: "asc" }
       })
     ]);
 
-    featured = products.map((product) => ({
+    const seenBrands = new Set<string>();
+    const selectedProducts: typeof allProducts = [];
+
+    for (const product of allProducts) {
+      const brandKey = (product.brand || "").trim().toLowerCase();
+      if (!seenBrands.has(brandKey)) {
+        seenBrands.add(brandKey);
+        selectedProducts.push(product);
+        if (selectedProducts.length === 4) break;
+      }
+    }
+
+    if (selectedProducts.length < 4) {
+      for (const product of allProducts) {
+        if (!selectedProducts.some((p) => p.id === product.id)) {
+          selectedProducts.push(product);
+          if (selectedProducts.length === 4) break;
+        }
+      }
+    }
+
+    featured = selectedProducts.map((product) => ({
       id: product.id,
       name: product.name,
       slug: product.slug,
@@ -60,7 +81,17 @@ export default async function HomePage() {
   }
 
   if (featured.length === 0) {
-    featured = demoProducts.slice(0, 10).map((product) => ({
+    const seenBrands = new Set<string>();
+    const selectedDemo: typeof demoProducts = [];
+    for (const product of demoProducts) {
+      const brandKey = (product.brand || "").trim().toLowerCase();
+      if (!seenBrands.has(brandKey)) {
+        seenBrands.add(brandKey);
+        selectedDemo.push(product);
+        if (selectedDemo.length === 4) break;
+      }
+    }
+    featured = selectedDemo.map((product) => ({
       id: product.id,
       name: product.name,
       slug: product.slug,
