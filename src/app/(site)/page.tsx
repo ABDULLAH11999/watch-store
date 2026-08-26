@@ -83,7 +83,7 @@ export default async function HomePage() {
 
   if (featured.length === 0) {
     const seenBrands = new Set<string>();
-    const selectedDemo: typeof demoProducts = [];
+    const selectedDemo: Array<(typeof demoProducts)[number]> = [];
     for (const product of demoProducts) {
       const brandKey = (product.brand || "").trim().toLowerCase();
       if (!seenBrands.has(brandKey)) {
