@@ -7,3 +7,7 @@ coverage
 .env.local
 /.prisma
 /public/watches
+database-backup/
+database-backup
+*.json.bak
+

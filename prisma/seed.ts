@@ -1,133 +1,307 @@
-import { PrismaClient, Prisma, ProductStatus, TestimonialStatus, AdminRole } from "@prisma/client";
+import { PrismaClient, Prisma, ProductStatus, TestimonialStatus, AdminRole, OrderStatus, EmailStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import fs from "fs";
+import path from "path";
 
 const prisma = new PrismaClient();
 
-type SeedProduct = {
-  name: string;
-  brand: string;
-  price: number;
-  salePrice?: number | null;
-  slug: string;
-  imageUrl: string;
-};
+function parseDecimal(val: any): Prisma.Decimal | null {
+  if (val === null || val === undefined) return null;
+  if (typeof val === "number" || typeof val === "string") return new Prisma.Decimal(val);
+  if (typeof val === "object" && val.d && Array.isArray(val.d)) {
+    const digitsStr = val.d.join("");
+    const sign = val.s < 0 ? "-" : "";
+    if (val.e >= digitsStr.length - 1) {
+      const trailingZeros = "0".repeat(val.e - (digitsStr.length - 1));
+      return new Prisma.Decimal(sign + digitsStr + trailingZeros);
+    } else {
+      const intPart = digitsStr.slice(0, val.e + 1);
+      const decPart = digitsStr.slice(val.e + 1);
+      return new Prisma.Decimal(sign + intPart + "." + decPart);
+    }
+  }
+  return new Prisma.Decimal(Number(val));
+}
 
-const saleEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+function parseDate(val: any): Date | null {
+  if (!val) return null;
+  return new Date(val);
+}
 
-const products: SeedProduct[] = [
-  { name: "Classic Fusion Titanium", brand: "HUBLOT", price: 4850000, salePrice: 4200000, slug: "classic-fusion-titanium", imageUrl: "/watches/classic-fusion-titanium.jpg" },
-  { name: "Big Bang Unico Black", brand: "HUBLOT", price: 6200000, slug: "big-bang-unico-black", imageUrl: "/watches/big-bang-unico-black.jpg" },
-  { name: "Spirit of Big Bang", brand: "HUBLOT", price: 5500000, salePrice: 4900000, slug: "spirit-of-big-bang", imageUrl: "/watches/spirit-of-big-bang.jpg" },
-  { name: "MP-05 LaFerrari", brand: "HUBLOT", price: 9800000, slug: "mp-05-laferrari", imageUrl: "/watches/mp-05-laferrari.jpg" },
-  { name: "Nautilus 5711", brand: "PATEK PHILIPPE", price: 12500000, slug: "nautilus-5711", imageUrl: "/watches/nautilus-5711.jpg" },
-  { name: "Aquanaut 5167", brand: "PATEK PHILIPPE", price: 8900000, salePrice: 7800000, slug: "aquanaut-5167", imageUrl: "/watches/aquanaut-5167.jpg" },
-  { name: "Grand Complications 5270", brand: "PATEK PHILIPPE", price: 18000000, slug: "grand-complications-5270", imageUrl: "/watches/grand-complications-5270.jpg" },
-  { name: "Calatrava 5196", brand: "PATEK PHILIPPE", price: 7200000, slug: "calatrava-5196", imageUrl: "/watches/calatrava-5196.jpg" },
-  { name: "PRX Powermatic 80", brand: "TISSOT", price: 220000, slug: "prx-powermatic-80", imageUrl: "/ui-image/tissot.png" },
-  { name: "Tsuyosa Automatic", brand: "CITIZEN", price: 185000, salePrice: 169000, slug: "tsuyosa-automatic", imageUrl: "/ui-image/citizen.png" }
-];
+async function seedFromBackup(backupFilePath: string): Promise<boolean> {
+  console.log(`[SEED] Reading backup JSON: ${backupFilePath}`);
+  const rawData = fs.readFileSync(backupFilePath, "utf8");
+  const backup = JSON.parse(rawData);
+  const tables = backup.tables || {};
 
-const testimonials = [
-  { customerName: "Ali Hassan", rating: 5, reviewText: "The watch was delivered exactly as shown. Packaging, service, and communication were all first class.", imageUrl: "/testimonials/1.webp", sortOrder: 1 },
-  { customerName: "Fatima Khan", rating: 5, reviewText: "Anmol Gadgets feels like a true luxury boutique. The team was helpful and very professional.", imageUrl: "/testimonials/2.webp", sortOrder: 2 },
-  { customerName: "Usman Malik", rating: 5, reviewText: "Authentic pieces, quick responses, and premium presentation. Highly recommended.", imageUrl: "/testimonials/3.webp", sortOrder: 3 },
-  { customerName: "Zara Ahmed", rating: 5, reviewText: "The site looks elegant and the collection feels very premium on mobile.", imageUrl: "/testimonials/4.webp", sortOrder: 4 }
-];
+  console.log(`[SEED] Backup Version: ${backup.version}, Exported At: ${backup.exportedAt}`);
+
+  // 1. Sequences
+  if (Array.isArray(tables.sequences) && tables.sequences.length > 0) {
+    console.log(`[SEED] Upserting ${tables.sequences.length} sequence(s)...`);
+    for (const seq of tables.sequences) {
+      await prisma.sequence.upsert({
+        where: { id: seq.id },
+        update: {
+          lastNumber: seq.lastNumber,
+          updatedAt: parseDate(seq.updatedAt) || new Date()
+        },
+        create: {
+          id: seq.id,
+          lastNumber: seq.lastNumber,
+          updatedAt: parseDate(seq.updatedAt) || new Date()
+        }
+      });
+    }
+  }
+
+  // 2. SiteSettings
+  if (Array.isArray(tables.siteSettings) && tables.siteSettings.length > 0) {
+    console.log(`[SEED] Upserting ${tables.siteSettings.length} site setting(s)...`);
+    for (const setting of tables.siteSettings) {
+      const valStr = typeof setting.value === "string" ? setting.value : JSON.stringify(setting.value);
+      await prisma.siteSettings.upsert({
+        where: { key: setting.key },
+        update: { value: valStr },
+        create: {
+          id: setting.id || undefined,
+          key: setting.key,
+          value: valStr
+        }
+      });
+    }
+  }
+
+  // 3. AdminUsers
+  if (Array.isArray(tables.adminUsers) && tables.adminUsers.length > 0) {
+    console.log(`[SEED] Upserting ${tables.adminUsers.length} admin user(s)...`);
+    for (const user of tables.adminUsers) {
+      await prisma.adminUser.upsert({
+        where: { email: user.email },
+        update: {
+          passwordHash: user.passwordHash,
+          role: user.role as AdminRole,
+          updatedAt: parseDate(user.updatedAt) || new Date()
+        },
+        create: {
+          id: user.id || undefined,
+          email: user.email,
+          passwordHash: user.passwordHash,
+          role: user.role as AdminRole,
+          createdAt: parseDate(user.createdAt) || new Date(),
+          updatedAt: parseDate(user.updatedAt) || new Date()
+        }
+      });
+    }
+  }
+
+  // 4. Testimonials
+  if (Array.isArray(tables.testimonials) && tables.testimonials.length > 0) {
+    console.log(`[SEED] Upserting ${tables.testimonials.length} testimonial(s)...`);
+    for (const t of tables.testimonials) {
+      await prisma.testimonial.upsert({
+        where: { id: t.id },
+        update: {
+          customerName: t.customerName,
+          customerImage: t.customerImage,
+          rating: t.rating,
+          reviewText: t.reviewText || "",
+          status: t.status as TestimonialStatus,
+          sortOrder: t.sortOrder || 0,
+          updatedAt: parseDate(t.updatedAt) || new Date()
+        },
+        create: {
+          id: t.id,
+          customerName: t.customerName,
+          customerImage: t.customerImage,
+          rating: t.rating,
+          reviewText: t.reviewText || "",
+          status: t.status as TestimonialStatus,
+          sortOrder: t.sortOrder || 0,
+          createdAt: parseDate(t.createdAt) || new Date(),
+          updatedAt: parseDate(t.updatedAt) || new Date()
+        }
+      });
+    }
+  }
+
+  // 5. EmailLogs
+  if (Array.isArray(tables.emailLogs) && tables.emailLogs.length > 0) {
+    console.log(`[SEED] Upserting ${tables.emailLogs.length} email log(s)...`);
+    for (const log of tables.emailLogs) {
+      await prisma.emailLog.upsert({
+        where: { id: log.id },
+        update: {
+          toEmail: log.toEmail,
+          subject: log.subject,
+          template: log.template,
+          status: log.status as EmailStatus,
+          sentAt: parseDate(log.sentAt) || new Date()
+        },
+        create: {
+          id: log.id,
+          toEmail: log.toEmail,
+          subject: log.subject,
+          template: log.template,
+          status: log.status as EmailStatus,
+          sentAt: parseDate(log.sentAt) || new Date()
+        }
+      });
+    }
+  }
+
+  // 6. Products
+  if (Array.isArray(tables.products) && tables.products.length > 0) {
+    console.log(`[SEED] Upserting ${tables.products.length} product(s)...`);
+    for (const p of tables.products) {
+      const priceVal = parseDecimal(p.price) || new Prisma.Decimal(0);
+      const salePriceVal = parseDecimal(p.salePrice);
+
+      await prisma.product.upsert({
+        where: { id: p.id },
+        update: {
+          name: p.name,
+          slug: p.slug,
+          brand: p.brand,
+          description: p.description,
+          price: priceVal,
+          salePrice: salePriceVal,
+          saleEndsAt: parseDate(p.saleEndsAt),
+          images: p.images,
+          videoUrl: p.videoUrl || null,
+          stock: p.stock ?? 0,
+          status: p.status as ProductStatus,
+          updatedAt: parseDate(p.updatedAt) || new Date()
+        },
+        create: {
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          brand: p.brand,
+          description: p.description,
+          price: priceVal,
+          salePrice: salePriceVal,
+          saleEndsAt: parseDate(p.saleEndsAt),
+          images: p.images,
+          videoUrl: p.videoUrl || null,
+          stock: p.stock ?? 0,
+          status: p.status as ProductStatus,
+          createdAt: parseDate(p.createdAt) || new Date(),
+          updatedAt: parseDate(p.updatedAt) || new Date()
+        }
+      });
+    }
+  }
+
+  // 7. Customers
+  if (Array.isArray(tables.customers) && tables.customers.length > 0) {
+    console.log(`[SEED] Upserting ${tables.customers.length} customer(s)...`);
+    for (const c of tables.customers) {
+      await prisma.customer.upsert({
+        where: { phone: c.phone },
+        update: {
+          name: c.name,
+          email: c.email || null,
+          address: c.address,
+          city: c.city
+        },
+        create: {
+          id: c.id,
+          name: c.name,
+          phone: c.phone,
+          email: c.email || null,
+          address: c.address,
+          city: c.city,
+          createdAt: parseDate(c.createdAt) || new Date()
+        }
+      });
+    }
+  }
+
+  // 8. Orders
+  if (Array.isArray(tables.orders) && tables.orders.length > 0) {
+    console.log(`[SEED] Upserting ${tables.orders.length} order(s)...`);
+    for (const o of tables.orders) {
+      const subtotalVal = parseDecimal(o.subtotal) || new Prisma.Decimal(0);
+      const totalVal = parseDecimal(o.total) || new Prisma.Decimal(0);
+
+      await prisma.order.upsert({
+        where: { id: o.id },
+        update: {
+          orderNumber: o.orderNumber,
+          customerId: o.customerId,
+          customerPhone: o.customerPhone,
+          items: o.items,
+          subtotal: subtotalVal,
+          total: totalVal,
+          status: o.status as OrderStatus,
+          notes: o.notes || null,
+          updatedAt: parseDate(o.updatedAt) || new Date()
+        },
+        create: {
+          id: o.id,
+          orderNumber: o.orderNumber,
+          customerId: o.customerId,
+          customerPhone: o.customerPhone,
+          items: o.items,
+          subtotal: subtotalVal,
+          total: totalVal,
+          status: o.status as OrderStatus,
+          notes: o.notes || null,
+          createdAt: parseDate(o.createdAt) || new Date(),
+          updatedAt: parseDate(o.updatedAt) || new Date()
+        }
+      });
+    }
+  }
+
+  console.log("[SEED] Backup data imported successfully.");
+  return true;
+}
 
 async function main() {
-  await prisma.sequence.upsert({
-    where: { id: 1 },
-    create: { id: 1, lastNumber: 999 },
-    update: {}
-  });
+  const backupDir = path.join(process.cwd(), "database-backup");
+  let backupFile: string | null = null;
 
-  const passwordHash = await bcrypt.hash("Admin@123", 12);
-  const existingAdmin = await prisma.adminUser.findUnique({
-    where: { email: "admin@anmolgadgets.com" }
-  });
-  if (!existingAdmin) {
-    await prisma.adminUser.create({
-      data: { email: "admin@anmolgadgets.com", passwordHash, role: AdminRole.SUPERADMIN }
-    });
+  if (fs.existsSync(backupDir)) {
+    const jsonFiles = fs.readdirSync(backupDir).filter((f) => f.endsWith(".json"));
+    if (jsonFiles.length > 0) {
+      backupFile = path.join(backupDir, jsonFiles[0]);
+    }
   }
 
-  const businessInfo = {
-    contactPhone: "+92 300 1234567",
-    contactEmail: "hello@anmolgadgets.com",
-    shopAddress: "Clifton, Karachi, Pakistan",
-    whatsappNumber: "+923001234567"
-  };
+  if (backupFile && fs.existsSync(backupFile)) {
+    await seedFromBackup(backupFile);
+  } else {
+    console.log("[SEED] No backup JSON found, running default fallback seed...");
+    await prisma.sequence.upsert({
+      where: { id: 1 },
+      create: { id: 1, lastNumber: 999 },
+      update: {}
+    });
 
-  const seoSettings = {
-    siteTitle: "Anmol Gadgets",
-    titleTemplate: "%s | Anmol Gadgets",
-    metaDescription: "Luxury Swiss watches in Pakistan.",
-    canonicalUrl: "https://anmolgadgets.com",
-    metaKeywords: "luxury watches, hublot, patek philippe, pakistan",
-    ogTitle: "Anmol Gadgets",
-    ogDescription: "Premium Swiss timepieces.",
-    ogImage: "",
-    headerScripts: "",
-    footerScripts: "",
-    robotsTxt: "User-agent: *\nAllow: /"
-  };
-
-  const emailSettings = {
-    host: "",
-    port: "587",
-    user: "",
-    password: "",
-    fromName: "Anmol Gadgets",
-    fromEmail: "no-reply@anmolgadgets.com"
-  };
-
-  await prisma.siteSettings.createMany({
-    data: [
-      { key: "businessInfo", value: JSON.stringify(businessInfo) },
-      { key: "seoSettings", value: JSON.stringify(seoSettings) },
-      { key: "emailSettings", value: JSON.stringify(emailSettings) }
-    ],
-    skipDuplicates: true
-  });
-
-  for (const product of products) {
-    const existingProduct = await prisma.product.findUnique({ where: { slug: product.slug } });
-    if (!existingProduct) {
-      await prisma.product.create({
-        data: {
-          name: product.name,
-          brand: product.brand,
-          description: `<p>${product.name} is a signature ${product.brand} masterpiece, crafted for collectors who value precision and prestige.</p>`,
-          price: new Prisma.Decimal(product.price),
-          salePrice: product.salePrice ? new Prisma.Decimal(product.salePrice) : null,
-          saleEndsAt: product.salePrice ? saleEndsAt : null,
-          images: [product.imageUrl],
-          videoUrl: null,
-          stock: 5,
-          status: ProductStatus.PUBLISHED,
-          slug: product.slug
-        }
+    const passwordHash = await bcrypt.hash("Admin@123", 12);
+    const existingAdmin = await prisma.adminUser.findUnique({
+      where: { email: "admin@anmolgadgets.com" }
+    });
+    if (!existingAdmin) {
+      await prisma.adminUser.create({
+        data: { email: "admin@anmolgadgets.com", passwordHash, role: AdminRole.SUPERADMIN }
       });
     }
   }
 
-  for (const testimonial of testimonials) {
-    const existingTestimonial = await prisma.testimonial.findFirst({
-      where: { customerName: testimonial.customerName }
-    });
-    if (!existingTestimonial) {
-      await prisma.testimonial.create({
-        data: {
-          customerName: testimonial.customerName,
-          customerImage: testimonial.imageUrl,
-          rating: testimonial.rating,
-          reviewText: testimonial.reviewText,
-          status: TestimonialStatus.PUBLISHED,
-          sortOrder: testimonial.sortOrder
-        }
-      });
-    }
-  }
+  console.log("\n=== DATABASE COUNTS ===");
+  console.log({
+    sequences: await prisma.sequence.count(),
+    siteSettings: await prisma.siteSettings.count(),
+    adminUsers: await prisma.adminUser.count(),
+    testimonials: await prisma.testimonial.count(),
+    emailLogs: await prisma.emailLog.count(),
+    products: await prisma.product.count(),
+    customers: await prisma.customer.count(),
+    orders: await prisma.order.count()
+  });
 }
 
 main()
@@ -139,3 +313,4 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+

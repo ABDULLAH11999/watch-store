@@ -2,7 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 
-const BACKUP_FILE = 'C:/Users/LapStore/Downloads/anmol-gadgets-backup-2026-07-01T19-18-05-113Z.json';
+let BACKUP_FILE = path.join(__dirname, 'database-backup', 'anmol-gadgets-backup-2026-07-01T19-18-05-113Z.json');
+if (!fs.existsSync(BACKUP_FILE)) {
+  const dir = path.join(__dirname, 'database-backup');
+  if (fs.existsSync(dir)) {
+    const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'));
+    if (files.length > 0) BACKUP_FILE = path.join(dir, files[0]);
+  }
+}
 
 if (fs.existsSync('.env')) {
   const envConfig = fs.readFileSync('.env', 'utf8');
